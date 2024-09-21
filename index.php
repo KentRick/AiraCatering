@@ -67,15 +67,15 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
           <a href="catering services.php" class="nav-item nav-link">Catering Services</a>
           <a href="catering packages.php" class="nav-item nav-link">Catering Packages</a>
           <a href="#about" class="nav-item nav-link">About Us</a>
-          <a href="" class="btn btn-primary py-2 px-4 d-none d-xl-inline-block rounded-pill" id="Reservation">Reservation Calendar</a>
+          <!-- Updated Button to Open Modal -->
+          <a href="#" class="btn btn-primary py-2 px-4 d-none d-xl-inline-block rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Reservation Calendar</a>
         </div>
         
         <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
           <li class="nav-item dropdown">
-          
             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
               <div class="profile-pic">
-                <img src="https://placehold.co/100" alt="Profile Picture">  
+                <img src="https://placehold.co/35" alt="Profile Picture">  
               </div> 
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -93,6 +93,36 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
     </nav>
   </div>
 </div>
+
+<!-- Include the Modal HTML Here -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reservation Calendar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <input type="month" id="month-picker" class="form-control" value="2024-09" min="" />
+                </div>
+                <div id="calendar"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<?php
+include 'calendar.php';
+?>
+
 <!-- Navbar End -->
 
 

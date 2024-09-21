@@ -174,6 +174,17 @@ include 'session.php';
     <div class="custom-form-container ">
     <h1>Event Details</h1>
     <form action="/submit" method="post" class="custom-form">
+
+    <label for="event-type" class="custom-label">Event Packages:</label>
+      <select id="event-type" name="event-type" class="custom-select" required>
+        <option value="">Select an event type</option>
+        <option value="wedding1">Wedding Packages 1</option>
+        <option value="wedding2">Wedding Packages 2</option>
+        <option value="wedding3">Wedding Packages 3</option>
+        <option value="party">Party</option>
+        <option value="other">Other</option>
+      </select>
+
       <label for="venue" class="custom-label">Venue:</label>
       <input type="text" id="venue" name="venue" class="custom-input" required>
 
