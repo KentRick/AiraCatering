@@ -119,6 +119,7 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
 
 
 
+
 <?php
 include 'calendar.php';
 ?>
@@ -149,11 +150,11 @@ include 'calendar.php';
 
   <script>
     document.getElementById('registerButton').addEventListener('click', function () {
-      window.location.href = 'register.html';
+      window.location.href = 'register.php';
     });
 
     document.getElementById('loginButton').addEventListener('click', function () {
-      window.location.href = 'login.html';
+      window.location.href = 'login.php';
     });
   </script>
 
