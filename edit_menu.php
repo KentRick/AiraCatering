@@ -1,5 +1,4 @@
 <?php
-// File: edit_menu.php
 include 'db_connect.php'; // Include the database connection file
 
 // Initialize the message variable
@@ -28,6 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['title'])) {
     }
 }
 
+// Handle category deletion
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCategory'])) {
+    $categoryToDelete = $conn->real_escape_string(trim($_POST['deleteCategory']));
+    $deleteSql = "DELETE FROM menu WHERE category = '$categoryToDelete'";
+    if ($conn->query($deleteSql) === TRUE) {
+        $message = "Category deleted successfully.";
+    } else {
+        $message = "Error deleting category.";
+    }
+}
+
 // Fetch distinct categories from the menu table
 $sql = "SELECT DISTINCT category FROM menu ORDER BY category";
 $result = $conn->query($sql);
@@ -43,215 +53,206 @@ $conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Menu</title>
-
-    <!-- Google Web Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playball&display=swap" rel="stylesheet" />
-
-    <!-- Icon Font Stylesheet -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
-
-    <!-- Libraries Stylesheet -->
-    <link href="lib/animate/animate.min.css" rel="stylesheet" />
-    <link href="lib/lightbox/css/lightbox.min.css" rel="stylesheet" />
-    <link href="lib/owlcarousel/owl.carousel.min.css" rel="stylesheet" />
-
-    <!-- Customized Bootstrap Stylesheet -->
-    <link href="css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Template Stylesheet -->
-    <link href="css/styles.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/ionicons.min.css">
-
-    <!-- Additional CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/styles.css" />
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
         }
-
         #menu-container {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
+            padding-top: 20px;
         }
-
-        .dropdown {
-            margin-right: 20px;
-        }
-
         form#addMenu {
             margin-bottom: 20px;
         }
-
-        .dropdown-toggle {
-            font-size: 1.25rem;
-            padding: 8px 15px;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .dropdown-toggle::after {
-            margin-left: 20px;
-            font-size: 1.25rem;
-        }
-
-        .dropdown-menu {
-            min-width: 200px;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
-        }
-
-        .dropdown-menu a {
-            padding: 10px 15px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .dropdown-menu a:last-child {
-            border-bottom: none;
-        }
-
-        .dropdown-menu a:hover {
-            background-color: #f8f9fa;
-            color: #007bff;
-        }
-
-        .menu-text-info {
-            font-size: 20px;
-            color: black;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
-        /* Remove alert styling */
-        .custom-alert {
-            display: none; /* Ensure it's hidden by default */
-        }
-
-        @media (max-width: 768px) {
-            #menu-container {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .dropdown-menu {
-                min-width: 100%;
-            }
-        }
-
         #food-list {
             margin-top: 20px;
         }
     </style>
 </head>
-
 <body>
     <div class="wrapper d-flex align-items-stretch">
         <?php include 'admin/includes/sidebar.php'; ?>
-
-        <!-- Page Content  -->
         <div id="content" class="p-4 p-md-5 pt-5">
             <h2 class="mb-4">Edit Menu</h2>
             <p>This page will allow you to edit Menu.</p>
-
-            <div><!-- Add Menu Category -->
-                <form id="addMenu" action="" method="post">
-                    <div class="form-group">
-                        <label for="title">Food Category</label>
-                        <input type="text" name="title" id="title" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-3">Add Category</button>
-                </form>
-            </div>
-
-            <!-- Container for Dropdown and Text -->
+            <!-- Add Menu Category -->
+            <form id="addMenu" action="" method="post">
+                <div class="form-group">
+                    <label for="title">Food Category</label>
+                    <input type="text" name="title" id="title" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Add Category</button>
+            </form>
+            <!-- Add Food -->
+            <form id="addFoodForm" action="add_food.php" method="post">
+                <div class="form-group">
+                    <label for="foodName">Food Name</label>
+                    <input type="text" name="foodName" id="foodName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="foodCategory">Select Category</label>
+                    <select name="foodCategory" id="foodCategory" class="form-control">
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Add Food</button>
+            </form>
+            <!-- Dropdown for Category Selection -->
             <div id="menu-container" class="mb-4">
-                <!-- Dropdown Menu -->
                 <div class="dropdown d-inline-block">
                     <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        Menu List
+                        Select Menu Category
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         <?php foreach ($categories as $category): ?>
-                            <li><a class="dropdown-item" href="#" data-category="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></a></li>
+                            <li>
+                                <a class="dropdown-item" href="#" data-category="<?php echo htmlspecialchars($category); ?>"><?php echo htmlspecialchars($category); ?></a>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
-
-                <!-- Add Food Button -->
-                <div class="d-inline-block ml-3">
-                    <button class="btn btn-success" id="addFoodButton">Add Food</button>
+                <div class="mt-3" style="padding-bottom: 15px;">
+                    <button id="deleteCategoryButton" class="btn btn-danger">Delete Selected Category</button>
                 </div>
             </div>
-
-            <!-- Container for Food List -->
-            <div id="food-list">
-                <!-- Food items will be displayed here -->
+            <div id="food-list"></div>
+            <div class="mt-3">
+                <button id="editSelectedButton" class="btn btn-warning">Edit Selected Food</button>
+                <button id="deleteSelectedButton" class="btn btn-danger">Delete Selected Food</button>
             </div>
-
-            <!-- Temporary Alert Container (hidden) -->
-            <div id="alertContainer" class="custom-alert"></div>
         </div>
+    </div>
 
-        <!-- JavaScript Libraries -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="lib/wow/wow.min.js"></script>
-        <script src="lib/easing/easing.min.js"></script>
-        <script src="lib/waypoints/waypoints.min.js"></script>
-        <script src="lib/counterup/counterup.min.js"></script>
-        <script src="lib/lightbox/js/lightbox.min.js"></script>
-        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+    <!-- JavaScript Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const dropdownItems = $('.dropdown-item');
+            const dropdownButton = $('#dropdownMenuButton');
+            let selectedCategory = '';
 
-        <!-- Template Javascript -->
-        <script src="js/main.js"></script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const dropdownItems = document.querySelectorAll('.dropdown-item');
-                const dropdownButton = document.getElementById('dropdownMenuButton');
-                const foodList = document.getElementById('food-list');
-                const alertContainer = document.getElementById('alertContainer');
-
-                // Remove alert handling as it's now hidden
-                alertContainer.style.display = 'none';
-
-                dropdownItems.forEach(item => {
-                    item.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        const category = this.getAttribute('data-category');
-                        dropdownButton.textContent = category;
-
-                        // AJAX request to fetch food items for the selected category
-                        $.ajax({
-                            url: 'fetch_food.php', // PHP file that will handle the request
-                            type: 'POST',
-                            data: {
-                                category: category
-                            },
-                            success: function(response) {
-                                foodList.innerHTML = response;
-                            },
-                            error: function() {
-                                foodList.innerHTML = '<p>Error loading food items.</p>';
-                            }
-                        });
-                    });
-                });
+            dropdownItems.on('click', function(event) {
+                event.preventDefault();
+                selectedCategory = $(this).data('category');
+                dropdownButton.text(selectedCategory);
+                loadFoodItems(selectedCategory);
             });
-        </script>
-</body>
 
+            function loadFoodItems(category) {
+                $.ajax({
+                    url: 'fetch_food.php',
+                    type: 'POST',
+                    data: { category: category },
+                    success: function(response) {
+                        $('#food-list').html(response);
+                    },
+                    error: function() {
+                        $('#food-list').html('<p>Error loading food items.</p>');
+                    }
+                });
+            }
+
+            $('#deleteCategoryButton').on('click', function() {
+                if (!selectedCategory) {
+                    alert("Please select a category to delete.");
+                    return;
+                }
+
+                if (confirm("Are you sure you want to delete the category '" + selectedCategory + "'?")) {
+                    $.ajax({
+                        url: 'edit_menu.php',
+                        type: 'POST',
+                        data: { deleteCategory: selectedCategory },
+                        success: function(response) {
+                            alert("Category deleted successfully.");
+                            location.reload(); // Reload to see updated categories
+                        },
+                        error: function() {
+                            alert('Error deleting category.');
+                        }
+                    });
+                }
+            });
+
+            $('#editSelectedButton').on('click', function() {
+                const selectedItems = $("input[type='checkbox']:checked");
+                if (selectedItems.length !== 1) {
+                    alert("Please select exactly one food item to edit.");
+                    return;
+                }
+
+                const selectedItem = selectedItems.first();
+                const foodId = selectedItem.attr('id').split('-')[1]; // Assuming id format is 'item-<id>'
+                const foodName = selectedItem.val();
+
+                // Populate the modal or form to edit food
+                $('#editFoodModal').modal('show');
+                $('#foodId').val(foodId);
+                $('#editFoodName').val(foodName);
+            });
+
+            $('#deleteSelectedButton').on('click', function() {
+                const selectedItems = $("input[type='checkbox']:checked");
+                if (selectedItems.length === 0) {
+                    alert("Please select at least one food item to delete.");
+                    return;
+                }
+
+                const foodIds = selectedItems.map(function() {
+                    return $(this).attr('id').split('-')[1];
+                }).get();
+
+                if (confirm("Are you sure you want to delete the selected food items?")) {
+                    $.ajax({
+                        url: 'delete_food.php',
+                        type: 'POST',
+                        data: { ids: foodIds },
+                        success: function(response) {
+                            alert("Food items deleted successfully.");
+                            loadFoodItems(selectedCategory); // Refresh the food items
+                        },
+                        error: function() {
+                            alert('Error deleting food items.');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- Edit Food Modal -->
+    <div class="modal fade" id="editFoodModal" tabindex="-1" aria-labelledby="editFoodModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFoodModalLabel">Edit Food Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editFoodForm" action="edit_food.php" method="post">
+                        <input type="hidden" name="foodId" id="foodId">
+                        <div class="mb-3">
+                            <label for="editFoodName" class="form-label">Food Name</label>
+                            <input type="text" class="form-control" name="foodName" id="editFoodName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>
