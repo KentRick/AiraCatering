@@ -15,6 +15,10 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Fetch user count
+$result = $conn->query("SELECT COUNT(*) AS user_count FROM users");
+$user_count = $result->fetch_assoc()['user_count'] ?? 0; // Default to 0 if no users
+
 // Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect and sanitize form data
@@ -40,9 +44,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<p style='color:red; text-align:center;'>Error: " . $stmt->error . "</p>";
     }
 
+
+
     // Close statement
     $stmt->close();
 }
+
+
 
 // Close connection
 $conn->close();
@@ -214,7 +222,15 @@ $conn->close();
             color: #333;
         }
 
-        
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            right: 15px;
+            top: 25px;
+        }
 
 
         /*Responsive*/
@@ -233,6 +249,7 @@ $conn->close();
             justify-content: center;
         }
     </style>
+
 
 </head>
 
@@ -261,8 +278,19 @@ $conn->close();
             </div>
             <div class="input-box">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter password" required />
+                <div class="input-with-icon">
+                    <input type="password" id="password" name="password" placeholder="Enter password" required />
+                    <i class="far fa-eye" id="togglePassword1" style="cursor: pointer;"></i>
+                </div>
             </div>
+            <div class="input-box">
+                <label for="retype_password">Retype Password</label>
+                <div class="input-with-icon">
+                    <input type="password" id="retype_password" name="retype_password" placeholder="Retype password" required />
+                    <i class="far fa-eye" id="togglePassword2" style="cursor: pointer;"></i>
+                </div>
+            </div>
+
             <div class="column">
                 <div class="input-box">
                     <label for="phone_number">Phone Number</label>
@@ -305,8 +333,34 @@ $conn->close();
         </form>
 
 
+        <script>
+            document.querySelector('form').addEventListener('submit', function(event) {
+                const password = document.getElementById('password').value;
+                const retypePassword = document.getElementById('retype_password').value;
 
+                if (password !== retypePassword) {
+                    event.preventDefault(); // Prevent form submission
+                    alert("Passwords do not match!");
+                }
+            });
 
+            const togglePassword1 = document.getElementById('togglePassword1');
+            const togglePassword2 = document.getElementById('togglePassword2');
+            const passwordInput1 = document.getElementById('password');
+            const passwordInput2 = document.getElementById('retype_password');
+
+            togglePassword1.addEventListener('click', function() {
+                const type = passwordInput1.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput1.setAttribute('type', type);
+                this.classList.toggle('fa-eye-slash');
+            });
+
+            togglePassword2.addEventListener('click', function() {
+                const type = passwordInput2.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput2.setAttribute('type', type);
+                this.classList.toggle('fa-eye-slash');
+            });
+        </script>
 
 </body>
 

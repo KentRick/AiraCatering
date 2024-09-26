@@ -1,3 +1,28 @@
+<?php
+// Database configuration
+$host = 'localhost';
+$dbname = 'my_database';
+$username = 'root';
+$password = '';
+
+// Create connection
+$conn = new mysqli($host, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Add this code before closing your database connection
+$result = $conn->query("SELECT COUNT(*) as total FROM users");
+$row = $result->fetch_assoc();
+$userCount = $row['total'];
+
+
+// Close connection
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,6 +50,20 @@
   <!-- Template Stylesheet -->
   <link href="css/styles.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/ionicons.min.css">
+  
+  <style>
+    .card {
+      background-color: #C0C0C0; /* Light gray background */
+      border: 1px solid #ced4da; /* Border color */
+      color: black;
+    }
+    .card-title {
+      color: black; /* Dark text color for contrast */
+    }
+    .card-text {
+      font-size: 2rem; /* Larger text for numbers */
+    }
+  </style>
 </head>
 <body>
 
@@ -35,7 +74,41 @@
     <div id="content" class="p-4 p-md-5 pt-5">
       <h2 class="mb-4">Reservation Report</h2>
       <p>This page will provide reports on reservations.</p>
-      <!-- Add the logic to display reservation report here -->
+
+      <div class="row">
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Number of Users</h5>
+              <p class="card-text" id="userCount"><?php echo $userCount; ?></p> <!-- Replace with dynamic data -->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Approved Reservations</h5>
+              <p class="card-text" id="approvedCount">26</p> <!-- Replace with dynamic data -->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Pending Reservations</h5>
+              <p class="card-text" id="pendingCount">12</p> <!-- Replace with dynamic data -->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 mb-4">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Cancelled Reservations</h5>
+              <p class="card-text" id="cancelledCount">2</p> <!-- Replace with dynamic data -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

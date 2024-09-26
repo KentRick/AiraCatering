@@ -4,6 +4,7 @@ include 'session.php';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,18 +15,15 @@ include 'session.php';
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playball&display=swap"
-    rel="stylesheet"
-  />
+    rel="stylesheet" />
 
   <!-- Icon Font Stylesheet -->
   <link
     rel="stylesheet"
-    href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
-  />
+    href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
   <link
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
-    rel="stylesheet"
-  />
+    rel="stylesheet" />
 
   <!-- Libraries Stylesheet -->
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
@@ -38,9 +36,10 @@ include 'session.php';
   <!-- Template Stylesheet -->
   <link href="css/style.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/ionicons.min.css">
-  
+
 
 </head>
+
 <body>
 
   <!-- Navbar start -->
@@ -52,39 +51,35 @@ include 'session.php';
             Aira<span class="text-dark">Catering</span>
           </h1>
         </a>
-        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
-          data-bs-target="#navbarCollapse">
+        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
           <span class="fa fa-bars text-primary"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
           <div class="navbar-nav mx-auto">
-            <a href="index.php" class="nav-item nav-link active">Home</a>
-            <a href="catering services.php" class="nav-item nav-link">Catering Services</a>
-            <a href="catering packages.php" class="nav-item nav-link">Catering Packages</a>
-            <a href="index.php #about" class="nav-item nav-link">About Us</a>
-            <a href="" class="btn btn-primary py-2 px-4 d-none d-xl-inline-block rounded-pill"
-              id="Reservation">Reservation Calendar</a>
+            <!-- Removed links here -->
           </div>
 
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                <div class="profile-pic">
-                  <img src="https://placehold.co/100" alt="Profile Picture">
-                </div>
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-cog fa-fw"></i> Settings</a></li>
-                <li>
-                  <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a></li>
-              </ul>
-            </li>
+            <?php if ($username !== 'Guest'): ?>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <div class="profile-pic">
+                    <img src="https://placehold.co/35" alt="Profile Picture">
+                  </div>
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
+                  <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
+                  <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
+                  <li>
+                    <hr class="dropdown-divider">
+                  </li>
+                  <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a></li>
+                </ul>
+              </li>
+            <?php endif; ?>
           </ul>
+
         </div>
       </nav>
     </div>
@@ -101,8 +96,8 @@ include 'session.php';
       display: flex;
       flex-direction: column;
       align-items: center;
-      
-      
+
+
     }
 
 
@@ -115,13 +110,13 @@ include 'session.php';
       max-width: 500px;
       margin-top: 20px;
       margin-bottom: 20px;
-      
+
     }
 
     .custom-h1 {
       font-size: 2.5rem;
       color: #333;
-      align-items:center;
+      align-items: center;
       margin-top: 30px;
     }
 
@@ -162,64 +157,72 @@ include 'session.php';
     .custom-hidden {
       display: none;
     }
+
+    .grayed-out {
+      background-color: #e9ecef;
+      /* Light gray background */
+      color: #6c757d;
+      /* Gray text color */
+    }
   </style>
 
 
   <!-- Event Details -->
-    
-      <h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
+  <h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
     Con<span class="text-dark">tract</span>
   </h1>
   <div class="try" style="justify-content: center; display:flex;">
-    <div class="custom-form-container ">
-    <h1>Event Details</h1>
-    <form action="/submit" method="post" class="custom-form">
+    <div class="custom-form-container">
+      <h1>Event Details</h1>
+      <form action="menu.php" method="post" class="custom-form">
 
-    <label for="event-type" class="custom-label">Event Packages:</label>
-      <select id="event-type" name="event-type" class="custom-select" required>
-        <option value="">Select an event type</option>
-        <option value="wedding1">Wedding Packages 1</option>
-        <option value="wedding2">Wedding Packages 2</option>
-        <option value="wedding3">Wedding Packages 3</option>
-        <option value="party">Party</option>
-        <option value="other">Other</option>
-      </select>
+        <label for="event-packages" class="custom-label">Event Packages:</label>
+        <select id="event-packages" name="event-packages" class="custom-select" required>
+          <option value="">Select an event type</option>
+          <option value="wedding1">Wedding Packages 1</option>
+          <option value="wedding2">Wedding Packages 2</option>
+          <option value="wedding3">Wedding Packages 3</option>
+          <option value="party">Party</option>
+          <option value="other">Other</option>
+        </select>
 
-      <label for="venue" class="custom-label">Venue:</label>
-      <input type="text" id="venue" name="venue" class="custom-input" required>
+        <label for="number-of-guests" class="custom-label">Number Of Guests:</label>
+        <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required disabled>
 
-      <label for="number-of-guests" class="custom-label">Number Of Guests:</label>
-      <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required>
 
-      <label for="event-type" class="custom-label">Type of Event:</label>
-      <select id="event-type" name="event-type" class="custom-select" required>
-        <option value="">Select an event type</option>
-        <option value="wedding">Wedding</option>
-        <option value="birthday">Birthday</option>
-        <option value="conference">Conference</option>
-        <option value="party">Party</option>
-        <option value="other">Other</option>
-      </select>
+        <div id="event-type-container" class="custom-hidden">
+          <label for="event-type" class="custom-label">Type of Event:</label>
+          <select id="event-type" name="event-type" class="custom-select" required>
+            <option value="N/A" style="display:none;">N/A</option>
+            <option value="wedding">Wedding</option>
+            <option value="birthday">Birthday</option>
+            <option value="conference">Conference</option>
+            <option value="party">Party</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
 
-      <!-- Hidden text box for specifying the event when "Other" is selected -->
-      <div id="other-event-container" class="custom-hidden">
-        <label for="other-event" class="custom-label">Specify Event:</label>
-        <input type="text" id="other-event" name="other-event" class="custom-input">
-      </div>
 
-      <label for="motif" class="custom-label">Motif:</label>
-      <input type="text" id="motif" name="motif" class="custom-input" required>
 
-      <label for="time" class="custom-label">Time:</label>
-      <input type="time" id="time" name="time" class="custom-input" required>
+        <!-- Hidden text box for specifying the event when "Other" is selected -->
+        <div id="other-event-container" class="custom-hidden">
+          <label for="other-event" class="custom-label">Specify Event:</label>
+          <input type="text" id="other-event" name="other-event" class="custom-input">
+        </div>
 
-      <button type="submit" class="custom-button">Submit</button>
-    </form>
+        <label for="motif" class="custom-label">Motif:</label>
+        <input type="text" id="motif" name="motif" class="custom-input" required>
+
+        <label for="time" class="custom-label">Time:</label>
+        <input type="time" id="time" name="time" class="custom-input" required>
+
+        <button type="submit" class="custom-button">Submit</button>
+      </form>
+    </div>
   </div>
-  </div>
+  <!-- Event Details End -->
 
-  <!-- Event Details End-->
-  
+
 
   <!-- Footer Start -->
   <footer class="container-fluid footer-07">
@@ -279,17 +282,102 @@ include 'session.php';
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      const eventPackagesSelect = document.getElementById('event-packages');
       const eventTypeSelect = document.getElementById('event-type');
       const otherEventContainer = document.getElementById('other-event-container');
+      const eventTypeContainer = document.getElementById('event-type-container');
+      const numberOfGuestsInput = document.getElementById('number-of-guests');
+      const form = document.querySelector('form');
+
+      eventPackagesSelect.addEventListener('change', () => {
+        if (eventPackagesSelect.value === 'other') {
+          otherEventContainer.classList.remove('custom-hidden');
+          eventTypeContainer.classList.remove('custom-hidden');
+          numberOfGuestsInput.value = '';
+          numberOfGuestsInput.disabled = false;
+          numberOfGuestsInput.classList.remove('grayed-out');
+          numberOfGuestsInput.removeAttribute('readonly'); // Make it editable for 'other'
+        } else {
+          otherEventContainer.classList.add('custom-hidden');
+          eventTypeContainer.classList.add('custom-hidden');
+
+          if (eventPackagesSelect.value) {
+            switch (eventPackagesSelect.value) {
+              case 'wedding1':
+                numberOfGuestsInput.value = 100;
+                break;
+              case 'wedding2':
+                numberOfGuestsInput.value = 150;
+                break;
+              case 'wedding3':
+                numberOfGuestsInput.value = 200;
+                break;
+              default:
+                numberOfGuestsInput.value = '';
+            }
+
+            numberOfGuestsInput.disabled = true; // Make it uneditable
+            numberOfGuestsInput.classList.remove('grayed-out');
+            numberOfGuestsInput.setAttribute('readonly', true); // Set as readonly
+          } else {
+            numberOfGuestsInput.disabled = false;
+            numberOfGuestsInput.classList.remove('grayed-out');
+            numberOfGuestsInput.value = '';
+            numberOfGuestsInput.removeAttribute('readonly'); // Make it editable again
+          }
+        }
+      });
+
 
       eventTypeSelect.addEventListener('change', () => {
         if (eventTypeSelect.value === 'other') {
-          otherEventContainer.classList.remove('custom-hidden');
+          otherEventContainer.classList.remove('custom-hidden'); // Show "Specify Event" input
         } else {
-          otherEventContainer.classList.add('custom-hidden');
+          otherEventContainer.classList.add('custom-hidden'); // Hide "Specify Event" input
+        }
+
+        // Enable number of guests input if an event package is selected
+        if (eventPackagesSelect.value) {
+          numberOfGuestsInput.disabled = false;
+          numberOfGuestsInput.classList.remove('grayed-out');
+        }
+      });
+
+      form.addEventListener('submit', (event) => {
+        // Check if event type is required and is not selected
+        if (eventTypeSelect.required && eventTypeSelect.value === '') {
+          eventTypeSelect.focus(); // Focus on the select
+          event.preventDefault(); // Prevent form submission
+          alert("Please select an event type.");
         }
       });
     });
+
+
+
+    form.addEventListener('submit', (event) => {
+      // Check if event type is required and is set to "N/A"
+      if (eventTypeSelect.required && eventTypeSelect.value === 'N/A') {
+        eventTypeSelect.focus(); // Focus on the select
+        event.preventDefault(); // Prevent form submission
+        alert("Please select a valid event type.");
+      }
+    });
+
+
+    /* Example of dynamic guest numbers
+const packageGuestNumbers = {
+    wedding1: 100,
+    wedding2: 150,
+    wedding3: 200,
+};
+
+ Use the following to set the value dynamically
+numberOfGuestsInput.value = packageGuestNumbers[eventPackagesSelect.value] || '';   */
   </script>
+
+
+
 </body>
+
 </html>

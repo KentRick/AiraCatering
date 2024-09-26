@@ -1,104 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Calendar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/antd.min.css">
-    <link href="css/bootstrap.min.css" rel="stylesheet" />
 
-    <style>
-        .calendar-container { 
-            background-color: #f0f0f0;
-            display: flex;
-            align-items: center;
-        }
+<style>
+    .calendar-container { 
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+    }
+    #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin: 20px;
+    }
+    .day {
+        padding: 20px;
+        border: 1px solid #ddd;
+        text-align: center;
+        transition: background-color 0.3s;
+        position: relative; /* For absolute positioning of events */
+    }
+    .day:hover {
+        background-color: #e6f7ff;
+    }
+    .cal-event {
+        margin-top: 5px;
+        padding: 5px;
+        border-radius: 4px;
+        color: white;
+        font-size: 12px;
+        display: none; /* Initially hide events */
+        position: relative; /* Position events relative to the day */
+        width: 100%; /* Adjust width to fit inside day */
+        box-sizing: border-box; /* Ensure padding is included in width */
+        cursor: pointer; /* Show pointer cursor on hover */
+    }
+    .reserved { 
+        background-color: #f44336;
+    }
+    .available { 
+        background-color: #4caf50;
+    }
+    .notes-month {
+        font-size: 20px;
+        margin: 10px 0;
+        grid-column: span 7;
+        text-align: center;
+    }
+
+    @media (min-width: 769px) and (max-width: 1000px) {
         #calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            margin: 20px;
+            grid-template-columns: repeat(4, 1fr);
         }
+
         .day {
-            padding: 20px;
-            border: 1px solid #ddd;
-            text-align: center;
-            transition: background-color 0.3s;
-            position: relative; /* For absolute positioning of events */
+            padding: 15px;
+            font-size: 16px;
         }
-        .day:hover {
-            background-color: #e6f7ff;
+
+        .modal-content {
+            margin: 0 20px;
         }
-        .event {
-            margin-top: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .calendar-container {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        #calendar {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .day {
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        #calendar {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .day {
             padding: 5px;
-            border-radius: 4px;
-            color: white;
             font-size: 12px;
-            display: none; /* Initially hide events */
-            position: relative; /* Position events relative to the day */
-            width: 100%; /* Adjust width to fit inside day */
-            box-sizing: border-box; /* Ensure padding is included in width */
-            cursor: pointer; /* Show pointer cursor on hover */
         }
-        .reserved { 
-            background-color: #f44336;
-        }
-        .available { 
-            background-color: #4caf50;
-        }
-        .notes-month {
-            font-size: 20px;
-            margin: 10px 0;
-            grid-column: span 7;
-            text-align: center;
-        }
+    }
 
-        @media (min-width: 769px) and (max-width: 1000px) {
-            #calendar {
-                grid-template-columns: repeat(4, 1fr);
-            }
+    .current-day {
+    background-color: #ffeb3b; /* Change this color as desired */
+    font-weight: bold; /* Optional: Make it bold */
+}
 
-            .day {
-                padding: 15px;
-                font-size: 16px;
-            }
 
-            .modal-content {
-                margin: 0 20px;
-            }
-        }
+    
+</style>
 
-        @media (max-width: 768px) {
-            .calendar-container {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            #calendar {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            .day {
-                padding: 10px;
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            #calendar {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .day {
-                padding: 5px;
-                font-size: 12px;
-            }
-        }
-    </style>
-</head>
-<body>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -140,6 +138,9 @@
 </div>
 
 <script>
+
+
+
     const events = {
         '2024-09': {
             8: [
@@ -175,50 +176,50 @@
     };
 
     const createCalendar = (year, month) => {
-        const calendar = document.getElementById('calendar');
-        calendar.innerHTML = '';
+    const calendar = document.getElementById('calendar');
+    calendar.innerHTML = '';
 
-        const monthDays = new Date(year, month + 1, 0).getDate();
-        const monthDisplay = document.createElement('div');
-        monthDisplay.className = 'notes-month';
-        monthDisplay.innerText = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
-        calendar.appendChild(monthDisplay);
+    const monthDays = new Date(year, month + 1, 0).getDate();
+    const monthDisplay = document.createElement('div');
+    monthDisplay.className = 'notes-month';
+    monthDisplay.innerText = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+    calendar.appendChild(monthDisplay);
 
-        for (let i = 1; i <= monthDays; i++) {
-            const day = document.createElement('div');
-            day.className = 'day';
-            day.innerText = i;
+    for (let i = 1; i <= monthDays; i++) {
+        const day = document.createElement('div');
+        day.className = 'day';
+        day.innerText = i;
 
-            const dayEvents = getListData(year, month + 1, i);
+        const dayEvents = getListData(year, month + 1, i);
+        
+        dayEvents.forEach(event => {
+            const eventDiv = document.createElement('div');
+            eventDiv.className = `cal-event ${event.type}`;
+            eventDiv.innerText = event.content;
+            day.appendChild(eventDiv);
             
-            dayEvents.forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = `event ${event.type}`;
-                eventDiv.innerText = event.content;
-                day.appendChild(eventDiv);
-                
-                // Only add click event for available events
-                if (event.type === 'available') {
-                    eventDiv.addEventListener('click', () => {
-                        document.getElementById('eventContent').innerText = `Date is ${event.content} click reserve now to continue the reservation`;
-                        const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-                        eventModal.show();
-                    });
-                }
-
-            });
-
-            // Click listener to show all events when the day is clicked
-            day.addEventListener('click', () => {
-                const eventDivs = day.querySelectorAll('.event');
-                eventDivs.forEach(eventDiv => {
-                    eventDiv.style.display = 'block'; // Show all events
+            // Only add click event for available events
+            if (event.type === 'available') {
+                eventDiv.addEventListener('click', () => {
+                    document.getElementById('eventContent').innerText = `Date is ${event.content} click reserve now to continue the reservation`;
+                    const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+                    eventModal.show();
                 });
-            });
+            }
 
-            calendar.appendChild(day);
-        }
-    };
+        });
+
+        // Click listener to show all events when the day is clicked
+        day.addEventListener('click', () => {
+            const eventDivs = day.querySelectorAll('.cal-event');
+            eventDivs.forEach(eventDiv => {
+                eventDiv.style.display = 'block'; // Show all events
+            });
+        });
+
+        calendar.appendChild(day);
+    }
+};
 
     const updateCalendar = () => {
         const monthPicker = document.getElementById('month-picker');
@@ -242,8 +243,9 @@
 document.getElementById('reserveNowButton').addEventListener('click', () => {
     window.location.href = "contract.php"; // Redirect to contract.php
 });
-</script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+
+
+
+</script>
