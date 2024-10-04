@@ -26,7 +26,7 @@
       <a href="edit_packages.php"><span class="far fa-file mr-3"></span> Edit Packages</a>
     </li>
     <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'edit_menu.php' ? 'active' : ''; ?>">
-      <a href="edit_menu.php"><span class="far fa-file mr-3"></span> Edit Menu</a>
+      <a href="edit_menu.php"><span class="far fa-file mr-3"></span> Menu Management</a>
     </li>
     <li class="<?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : ''; ?>">
       <a href="settings.php"><span class="fas fa-cogs mr-3"></span> Settings</a>

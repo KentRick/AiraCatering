@@ -52,6 +52,68 @@ $conn->close();
   <!-- Template Stylesheet -->
   <link href="css/style.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/ionicons.min.css">
+
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f7f7f7;
+    }
+
+    #menu-grid {
+      text-align: center;
+      margin: 40px auto;
+      max-width: 1200px;
+    }
+
+    #menu-grid h1 {
+      font-size: 36px;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .grid-item {
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .grid-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .category-title {
+      font-weight: bold;
+      font-size: 18px;
+      color: #275437;
+      margin-bottom: 15px;
+    }
+
+    .checkbox-container {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .checkbox-container label {
+      margin: 5px 0;
+      font-size: 16px;
+      color: #555;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 10px;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -102,86 +164,29 @@ $conn->close();
 
 
   <!-- MENUS -->
-  <style>
-    /* Add space above the footer */
-    #menu-grid {
-      text-align: center;
-      /* Center-align the contents */
-      margin-bottom: 40px;
-      /* Adjust this value to control the space above the footer */
-    }
-
-    /* Other existing styles */
-    #menu-grid .page-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      /* Space below the title */
-    }
-
-    #menu-grid .grid-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      /* 3 equal columns */
-      grid-template-rows: repeat(3, auto);
-      /* Automatic row height based on content */
-      gap: 10px;
-      /* Space between grid items */
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-      /* Center the grid container */
-    }
-
-    #menu-grid .grid-item {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      padding: 20px;
-      font-size: 16px;
-      text-align: center;
-      color: #333;
-      overflow: hidden;
-      /* Hide overflow if necessary */
-    }
-
-    #menu-grid .category-title {
-      margin-bottom: 10px;
-      /* Space between title and checkboxes */
-      font-weight: bold;
-    }
-
-    #menu-grid .checkbox-container {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    #menu-grid .checkbox-container label {
-      margin-bottom: 5px;
-      /* Space between checkboxes */
-    }
-  </style>
-
   <div id="menu-grid">
-    <h1 class="text-primary fw-bold mb-5 text-center">
-      Me<span class="text-dark">nu</span>
+    <h1 class="text-primary fw-bold mb-0 text-center" id="Event-Packages-Name">
+      ME<span class="text-dark">NU</span>
     </h1>
-    <div class="grid-container">
-      <?php foreach ($menu as $category => $items): ?>
-        <div class="grid-item">
-          <div class="category-title"><?php echo htmlspecialchars($category); ?></div>
-          <div class="checkbox-container">
-            <?php foreach ($items as $item): ?>
-              <label><input type="checkbox"> <?php echo htmlspecialchars($item); ?></label>
-            <?php endforeach; ?>
+    <form action="submit_menu.php" method="post"> <!-- Change the action URL as needed -->
+      <div class="grid-container">
+        <?php foreach ($menu as $category => $items): ?>
+          <div class="grid-item">
+            <div class="category-title"><?php echo htmlspecialchars($category); ?></div>
+            <div class="checkbox-container">
+              <?php foreach ($items as $item): ?>
+                <label>
+                  <input type="checkbox" name="menu_items[]" value="<?php echo htmlspecialchars($item); ?>"> <?php echo htmlspecialchars($item); ?>
+                </label>
+              <?php endforeach; ?>
+            </div>
           </div>
-        </div>
-      <?php endforeach; ?>
-    </div>
+        <?php endforeach; ?>
+      </div>
+      <div class="text-end mt-4">
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </div>
+    </form>
   </div>
   <!-- END MENU -->
 

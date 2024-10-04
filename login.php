@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 }
 
 // Check if the user is already logged in
-if (isset($_SESSION['full_name'])) {
+if (isset($_SESSION['first_name'])) {
   header("Location: index.php");
   exit();
 }
@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $password = $_POST['password'];
 
   // Prepare SQL statement
-  $stmt = $conn->prepare("SELECT full_name, password FROM users WHERE email = ?");
+  $stmt = $conn->prepare("SELECT first_name, password FROM users WHERE email = ?");
   $stmt->bind_param('s', $email);
 
   // Execute statement
@@ -41,13 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // Check if user exists
   if ($stmt->num_rows === 1) {
-    $stmt->bind_result($full_name, $hashed_password);
+    $stmt->bind_result($first_name, $hashed_password);
     $stmt->fetch();
 
     // Verify password
     if (password_verify($password, $hashed_password)) {
       // Store user data in session
-      $_SESSION['full_name'] = $full_name;
+      $_SESSION['first_name'] = $first_name;
       header("Location: index.php");
       exit();
     } else {

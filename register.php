@@ -19,10 +19,11 @@ if ($conn->connect_error) {
 $result = $conn->query("SELECT COUNT(*) AS user_count FROM users");
 $user_count = $result->fetch_assoc()['user_count'] ?? 0; // Default to 0 if no users
 
-// Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect and sanitize form data
-    $full_name = $_POST['full_name'];
+    $last_name = $_POST['last_name'];
+    $first_name = $_POST['first_name'];
+    $middle_name = $_POST['middle_name'];
     $email = $_POST['email'];
     $phone_number = $_POST['phone_number'];
     $birth_date = $_POST['birth_date'];
@@ -31,9 +32,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_BCRYPT); // Hash the password
 
     // Prepare SQL statement
-    $stmt = $conn->prepare("INSERT INTO users (full_name, email, phone_number, birth_date, gender, address, password) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param('sssssss', $full_name, $email, $phone_number, $birth_date, $gender, $address, $password);
+    $stmt = $conn->prepare("INSERT INTO users (last_name, first_name, middle_name, email, phone_number, birth_date, gender, address, password) 
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    // Bind parameters
+    $stmt->bind_param('sssssssss', $last_name, $first_name, $middle_name, $email, $phone_number, $birth_date, $gender, $address, $password);
 
     // Execute statement and check for errors
     if ($stmt->execute()) {
@@ -44,11 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "<p style='color:red; text-align:center;'>Error: " . $stmt->error . "</p>";
     }
 
-
-
     // Close statement
     $stmt->close();
 }
+
 
 
 
@@ -261,17 +262,41 @@ $conn->close();
             </header>
         </div>
         <form action="" method="post" class="form">
-            <div class="input-box">
-                <label for="full_name">Full Name</label>
-                <input
-                    type="text"
-                    id="full_name"
-                    name="full_name"
-                    placeholder="Enter full name"
-                    required
-                    pattern="[A-Za-z ]+"
-                    title="Full Name should only contain letters and spaces" />
+            <div class="column">
+                <div class="input-box">
+                    <label for="last_name">Last Name</label>
+                    <input
+                        type="text"
+                        id="last_name"
+                        name="last_name"
+                        placeholder="Enter last name"
+                        required
+                        pattern="[A-Za-z ]+"
+                        title="Last Name should only contain letters and spaces" />
+                </div>
+                <div class="input-box">
+                    <label for="first_name">First Name</label>
+                    <input
+                        type="text"
+                        id="first_name"
+                        name="first_name"
+                        placeholder="Enter first name"
+                        required
+                        pattern="[A-Za-z ]+"
+                        title="First Name should only contain letters and spaces" />
+                </div>
+                <div class="input-box">
+                    <label for="middle_name">Middle Name</label>
+                    <input
+                        type="text"
+                        id="middle_name"
+                        name="middle_name"
+                        placeholder="Enter middle name (optional)"
+                        pattern="[A-Za-z ]+"
+                        title="Middle Name should only contain letters and spaces" />
+                </div>
             </div>
+
             <div class="input-box">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" placeholder="Enter email address" required />
@@ -294,11 +319,25 @@ $conn->close();
             <div class="column">
                 <div class="input-box">
                     <label for="phone_number">Phone Number</label>
-                    <input type="tel" id="phone_number" name="phone_number" placeholder="Enter phone number" required />
+                    <input
+                        type="tel"
+                        id="phone_number"
+                        name="phone_number"
+                        placeholder="Enter phone number"
+                        required
+                        pattern="\d{11}"
+                        maxlength="11"
+                        title="Please enter exactly 11 digits."
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '');" />
                 </div>
                 <div class="input-box">
                     <label for="birth_date">Birth Date</label>
-                    <input type="date" id="birth_date" name="birth_date" required />
+                    <input
+                        type="date"
+                        id="birth_date"
+                        name="birth_date"
+                        required
+                        onchange="checkAge()" />
                 </div>
             </div>
             <div class="gender-box">
@@ -360,6 +399,26 @@ $conn->close();
                 passwordInput2.setAttribute('type', type);
                 this.classList.toggle('fa-eye-slash');
             });
+
+
+            function checkAge() {
+                const birthDateInput = document.getElementById('birth_date');
+                const birthDate = new Date(birthDateInput.value);
+                const today = new Date();
+
+                // Calculate the age
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDifference = today.getMonth() - birthDate.getMonth();
+                if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+
+                // Check if age is less than 18
+                if (age < 18) {
+                    alert("You must be at least 18 years old to register.");
+                    birthDateInput.value = ""; // Clear the input
+                }
+            }
         </script>
 
 </body>
