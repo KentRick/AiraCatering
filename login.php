@@ -3,10 +3,7 @@
 session_start();
 
 // Database configuration
-$host = 'localhost';
-$dbname = 'my_database';
-$username = 'root';
-$password = '';
+include 'db_connect.php';
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $dbname);
@@ -47,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify password
     if (password_verify($password, $hashed_password)) {
       // Store user data in session
-      $_SESSION['first_name'] = $first_name;
+      $_SESSION['last_name'] = $last_name;
       header("Location: index.php");
       exit();
     } else {

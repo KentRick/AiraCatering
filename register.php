@@ -2,10 +2,7 @@
 session_start(); // Start the session
 
 // Database configuration
-$host = 'localhost';
-$dbname = 'my_database';
-$username = 'root';
-$password = '';
+include 'db_connect.php';
 
 // Create connection
 $conn = new mysqli($host, $username, $password, $dbname);
@@ -39,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Execute statement and check for errors
     if ($stmt->execute()) {
+        $_SESSION['first_name'] = $first_name;
+        $_SESSION['last_name'] = $last_name;
         $_SESSION['registered'] = true; // Set session variable
         header("Location: login.php");
         exit();

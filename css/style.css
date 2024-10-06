@@ -197,9 +197,18 @@ h4, h5, h6, .h4, .h5, .h6 {
 
 /*** Events Start ***/
 .event .tab-class .nav-item a.active {
-    background: var(--bs-primary) !important;
-    
-    
+    background: var(--bs-primary) !important; /* Background color for active links */
+    color: white !important; /* Change the text color to white for active links */
+}
+
+/* Set default text color for nav links */
+.event .tab-class .nav-item a {
+    color: #212529; /* Default text color */
+}
+
+/* Change text color on hover */
+.event .tab-class .nav-item a:hover {
+    color: white; /* Change text color to white on hover */
 }
 
 .event .event-img .event-overlay {
@@ -217,6 +226,22 @@ h4, h5, h6, .h4, .h5, .h6 {
 
 .event .event-img:hover .event-overlay {
     opacity: 1;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    height: 50px; /* Adjust button height */
+    width: 50px; /* Adjust button width */
+    padding: 8px;
+    margin-top: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: invert(1); /* Change icon color to white */
 }
 /*** Events End ***/
 

@@ -80,10 +80,7 @@
 
 <?php
 // Database configuration
-$host = 'localhost';
-$dbname = 'my_database';
-$username = 'root';
-$password = '';
+include 'db_connect.php';
 
 try {
     $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

@@ -71,8 +71,9 @@ include 'session.php';
             <a href="#" class="btn btn-primary py-2 px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Reservation Calendar</a>
           </div>
 
+
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <?php if ($username !== 'Guest'): ?>
+            <?php if ($user !== 'Guest'): ?>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <div class="profile-pic">
@@ -80,7 +81,7 @@ include 'session.php';
                   </div>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
+                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $user; ?></a></li>
                   <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
                   <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
                   <li>
@@ -91,7 +92,6 @@ include 'session.php';
               </li>
             <?php endif; ?>
           </ul>
-
         </div>
       </nav>
     </div>

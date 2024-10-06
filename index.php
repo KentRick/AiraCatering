@@ -6,6 +6,10 @@ include 'session.php';
 include 'calendar.php';
 ?>
 
+<?php 
+include 'db_connect.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -35,7 +39,7 @@ include 'calendar.php';
   <link href="css/bootstrap.min.css" rel="stylesheet" />
 
   <!-- Template Stylesheet -->
-  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/style.css?v=1.0" rel="stylesheet" />
   <link rel="stylesheet" href="css/ionicons.min.css">
 
   <script src="
@@ -77,7 +81,7 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
           </div>
 
           <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <?php if ($username !== 'Guest'): ?>
+            <?php if ($user !== 'Guest'): ?>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <div class="profile-pic">
@@ -85,7 +89,7 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
                   </div>
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
+                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $user; ?></a></li>
                   <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
                   <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
                   <li>
@@ -96,7 +100,6 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
               </li>
             <?php endif; ?>
           </ul>
-
         </div>
       </nav>
     </div>
@@ -228,217 +231,137 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
       </div>
       <!-- About End -->
 
-      <!-- Events Start -->
-      <div class="container-fluid event py-6">
-        <div class="container">
-          <div class="text-center wow bounceInUp" data-wow-delay="0.1s">
-            <small
-              class="d-inline-block fw-bold text-dark text-uppercase bg-light border border-primary rounded-pill px-4 py-1 mb-3">Events</small>
+<!-- Events Start -->
+<div class="container-fluid event py-6">
+    <div class="container">
+        <div class="text-center wow bounceInUp" data-wow-delay="0.1s">
+            <small class="d-inline-block fw-bold text-dark text-uppercase bg-light border border-primary rounded-pill px-4 py-1 mb-3">Events</small>
             <h1 class="display-5 mb-5">Events Gallery</h1>
-          </div>
-          <div class="tab-class text-center">
-            <ul class="nav nav-pills d-inline-flex justify-content-center mb-5 wow bounceInUp" data-wow-delay="0.1s">
-              <li class="nav-item p-2">
-                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill active" data-bs-toggle="pill"
-                  href="#tab-1">
-                  <span class="text-dark" style="width: 150px">All Events</span>
-                </a>
-              </li>
-              <li class="nav-item p-2">
-                <a class="d-flex py-2 mx-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill"
-                  href="#tab-2">
-                  <span class="text-dark" style="width: 150px">Wedding</span>
-                </a>
-              </li>
-              <li class="nav-item p-2">
-                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill"
-                  href="#tab-3">
-                  <span class="text-dark" style="width: 150px">Birthday</span>
-                </a>
-              </li>
-              <li class="nav-item p-2">
-                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill"
-                  href="#tab-4">
-                  <span class="text-dark" style="width: 150px">Christening</span>
-                </a>
-              </li>
-              <li class="nav-item p-2">
-                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill"
-                  href="#tab-5">
-                  <span class="text-dark" style="width: 150px">Debut</span>
-                </a>
-              </li>
-            </ul>
-            <!--all-->
-            <div class="tab-content">
-              <div id="tab-1" class="tab-pane fade show p-0 active">
-                <div class="row g-4">
-                  <div class="col-lg-12">
-                    <div class="row g-4">
-                      <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.1s">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Wedding</h4>
-                            <a href="img/event-1.jpg" data-lightbox="event-1" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.3s">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Birthday</h4>
-                            <a href="img/event-2.jpg" data-lightbox="event-2" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.5s">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Christening</h4>
-                            <a href="img/event-3.jpg" data-lightbox="event-3" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.7s">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Debut</h4>
-                            <a href="img/event-4.jpg" data-lightbox="event-4" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!--random end-->
-
-              <div id="tab-2" class="tab-pane fade show p-0">
-                <div class="row g-4">
-                  <div class="col-lg-12">
-                    <div class="row g-4">
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Wedding</h4>
-                            <a href="img/01.jpg" data-lightbox="event-8" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Wedding</h4>
-                            <a href="img/01.jpg" data-lightbox="event-9" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="tab-3" class="tab-pane fade show p-0">
-                <div class="row g-4">
-                  <div class="col-lg-12">
-                    <div class="row g-4">
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Birthday</h4>
-                            <a href="img/01.jpg" data-lightbox="event-10" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Birthday</h4>
-                            <a href="img/01.jpg" data-lightbox="event-11" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="tab-4" class="tab-pane fade show p-0">
-                <div class="row g-4">
-                  <div class="col-lg-12">
-                    <div class="row g-4">
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Christening</h4>
-                            <a href="img/01.jpg" data-lightbox="event-12" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Christening</h4>
-                            <a href="img/01.jpg" data-lightbox="event-13" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div id="tab-5" class="tab-pane fade show p-0">
-                <div class="row g-4">
-                  <div class="col-lg-12">
-                    <div class="row g-4">
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Debut</h4>
-                            <a href="img/01.jpg" data-lightbox="event-14" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-md-6 col-lg-3">
-                        <div class="event-img position-relative">
-                          <img class="img-fluid rounded w-100" src="img/no-pictures.png" alt="" />
-                          <div class="event-overlay d-flex flex-column p-4">
-                            <h4 class="me-auto">Debut</h4>
-                            <a href="img/01.jpg" data-lightbox="event-15" class="my-auto"><i
-                                class="fas fa-search-plus text-dark fa-2x"></i></a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
-      <!-- Events End -->
+        <div class="tab-class text-center">
+            <div id="navCarousel" class="carousel slide" data-bs-ride="false">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <ul class="nav nav-pills d-inline-flex justify-content-center mb-5">
+                            <li class="nav-item p-2">
+                                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-all">
+                                    <span class="text-dark" style="width: 150px">All Events</span>
+                                </a>
+                            </li>
+                            <?php 
+                            // Fetch distinct categories from the database
+                            $sql = "SELECT DISTINCT category FROM events";
+                            $result = $conn->query($sql);
+                            $tabs = [];
+                            if ($result->num_rows > 0) {
+                                while($row = $result->fetch_assoc()) {
+                                    $tabs[] = $row['category'];
+                                }
+                            }
+                            
+                            // Create nav pills
+                            for ($i = 0; $i < count($tabs); $i++) {
+                                if ($i > 0 && $i % 5 == 0) { // Every 5 items create a new carousel item
+                                    echo '</ul></div><div class="carousel-item"><ul class="nav nav-pills d-inline-flex justify-content-center mb-5">';
+                                }
+                                echo '
+                                <li class="nav-item p-2">
+                                    <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill" href="#tab-' . $tabs[$i] . '">
+                                        <span class="text-dark" style="width: 150px">' . $tabs[$i] . '</span>
+                                    </a>
+                                </li>';
+                            }
+                            ?>
+                        </ul>
+                    </div>
+                </div>
+                <button class="carousel-control-prev border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <!-- All Events Tab -->
+                <div id="tab-all" class="tab-pane fade show active p-0">
+                    <div class="row g-4">
+                        <div class="col-lg-12">
+                            <div class="row g-4">
+                                <?php 
+                                // Fetch all events from the database
+                                $sql = "SELECT event_name, category, image_path FROM events";
+                                $result = $conn->query($sql);
+                                if ($result->num_rows > 0) {
+                                    while($event = $result->fetch_assoc()) {
+                                        echo '
+                                        <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.1s">
+                                            <div class="event-img position-relative">
+                                                <img class="img-fluid rounded w-100" src="' . $event['image_path'] . '" alt="" />
+                                                <div class="event-overlay d-flex flex-column p-4">
+                                                    <h4 class="me-auto">' . $event['event_name'] . '</h4>
+                                                    <a href="' . $event['image_path'] . '" data-lightbox="all-events" class="my-auto">
+                                                        <i class="fas fa-search-plus text-dark fa-2x"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>';
+                                    }
+                                } else {
+                                    echo "<p>No events available.</p>";
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Category-specific Tabs -->
+                <?php
+                foreach ($tabs as $tab) {
+                    echo '<div id="tab-' . $tab . '" class="tab-pane fade show p-0">';
+                    echo '<div class="row g-4">';
+                    echo '<div class="col-lg-12">';
+                    echo '<div class="row g-4">';
+
+                    // Fetch events specific to this category
+                    $sql = "SELECT event_name, image_path FROM events WHERE category = ?";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bind_param("s", $tab);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    if ($result->num_rows > 0) {
+                        while($event = $result->fetch_assoc()) {
+                            echo '
+                            <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.1s">
+                                <div class="event-img position-relative">
+                                    <img class="img-fluid rounded w-100" src="' . $event['image_path'] . '" alt="" />
+                                    <div class="event-overlay d-flex flex-column p-4">
+                                        <h4 class="me-auto">' . $event['event_name'] . '</h4>
+                                        <a href="' . $event['image_path'] . '" data-lightbox="event-' . $tab . '" class="my-auto">
+                                            <i class="fas fa-search-plus text-dark fa-2x"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>';
+                        }
+                    } else {
+                        echo "<p>No events in this category.</p>";
+                    }
+
+                    echo '</div>'; // End row
+                    echo '</div>'; // End col-lg-12
+                    echo '</div>'; // End row g-4
+                    echo '</div>'; // End tab-pane
+                }
+                ?>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Events End -->
 
 
       <!-- My Menu Start -->
