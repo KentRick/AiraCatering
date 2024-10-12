@@ -3,9 +3,9 @@ include 'session.php';
 ?>
 
 <?php
-  include 'calendar.php';
+include 'calendar.php';
 ?>
-  
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,29 +44,29 @@ include 'session.php';
 
 <body>
 
-<!-- Navbar start -->
-<div class="container-fluid nav-bar">
-  <div class="container">
-    <nav class="navbar navbar-light navbar-expand-lg py-4">
-      <a href="index.php" class="navbar-brand">
-        <h1 class="text-primary fw-bold mb-0">
-          Aira<span class="text-dark">Catering</span>
-        </h1>
-      </a>
-      <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-        <span class="fa fa-bars text-primary"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarCollapse">
-        <div class="navbar-nav mx-auto">
-          <a href="index.php" class="nav-item nav-link active">Home</a>
-          <a href="catering services.php" class="nav-item nav-link">Catering Services</a>
-          <a href="catering packages.php" class="nav-item nav-link">Catering Packages</a>
-          <a href="#about" class="nav-item nav-link">About Us</a>
-          <!-- Updated Button to Open Modal -->
-          <a href="#" class="btn btn-primary py-2 px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Reservation Calendar</a>
-        </div>
+  <!-- Navbar start -->
+  <div class="container-fluid nav-bar">
+    <div class="container">
+      <nav class="navbar navbar-light navbar-expand-lg py-4">
+        <a href="index.php" class="navbar-brand">
+          <h1 class="text-primary fw-bold mb-0">
+            Aira<span class="text-dark">Catering</span>
+          </h1>
+        </a>
+        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+          <span class="fa fa-bars text-primary"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+          <div class="navbar-nav mx-auto">
+            <a href="index.php" class="nav-item nav-link active">Home</a>
+            <a href="catering services.php" class="nav-item nav-link">Catering Services</a>
+            <a href="catering packages.php" class="nav-item nav-link">Catering Packages</a>
+            <a href="#about" class="nav-item nav-link">About Us</a>
+            <!-- Updated Button to Open Modal -->
+            <a href="#" class="btn btn-primary py-2 px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Reservation Calendar</a>
+          </div>
 
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
             <?php if ($user !== 'Guest'): ?>
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -116,32 +116,8 @@ include 'session.php';
   <!-- Navbar End -->
 
 
-  <!--Packages-->
-  <div id="pack-slider">
-    <h1 class="text-primary fw-bold mb-0 text-center" id="Event-Packages-Name">
-      Event<span class="text-dark">Packages</span>
-    </h1>
-    <div class="pack-slide-container">
-      <span class="slider-span" id="slider-span1"></span>
-      <span class="slider-span" id="slider-span2"></span>
-      <span class="slider-span" id="slider-span3"></span>
-
-      <div class="image-slider">
-        <div class="slides-div" id="slide-1">
-          <img src="img/no-pictures.png" alt="" class="img" id="img1">
-          <a href="#" class="button" id="button-1" onclick="showSlide(1)"></a>
-        </div>
-        <div class="slides-div" id="slide-2">
-          <img src="img/no-pictures.png" alt="" class="img" id="img2">
-          <a href="#" class="button" id="button-2" onclick="showSlide(2)"></a>
-        </div>
-        <div class="slides-div" id="slide-3">
-          <img src="img/no-pictures.png" alt="" class="img" id="img3">
-          <a href="#" class="button" id="button-3" onclick="showSlide(3)"></a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!--Packages -->
+  <?php include 'packages.php'; ?>
 
   <!-- Footer Start -->
 
