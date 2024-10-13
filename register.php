@@ -232,6 +232,14 @@ $conn->close();
             top: 25px;
         }
 
+        .password-requirements {
+            color: red;
+            /* Change the text color */
+            font-size: 0.9rem;
+            /* Adjust the font size */
+            margin-top: 5px;
+            /* Add some space above the text */
+        }
 
         /*Responsive*/
         @media screen and (max-width: 500px) {
@@ -303,9 +311,18 @@ $conn->close();
             <div class="input-box">
                 <label for="password">Password</label>
                 <div class="input-with-icon">
-                    <input type="password" id="password" name="password" placeholder="Enter password" required />
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        required
+                        minlength="8" />
                     <i class="far fa-eye" id="togglePassword1" style="cursor: pointer;"></i>
                 </div>
+                <span class="password-requirements" style="color: red; font-size: 0.7rem;">
+                    Password must contain at least one uppercase letter, one number, and be at least 8 characters long!
+                </span>
             </div>
             <div class="input-box">
                 <label for="retype_password">Retype Password</label>
@@ -376,12 +393,29 @@ $conn->close();
                 const password = document.getElementById('password').value;
                 const retypePassword = document.getElementById('retype_password').value;
 
+                // Check if passwords match
                 if (password !== retypePassword) {
                     event.preventDefault(); // Prevent form submission
                     alert("Passwords do not match!");
+                    return;
+                }
+
+                // Check password criteria
+                if (!isValidPassword(password)) {
+                    event.preventDefault(); // Prevent form submission
+                    alert("Password must contain at least one uppercase letter and one number!");
                 }
             });
+            // Function to validate password
+            function isValidPassword(password) {
+                const hasUpperCase = /[A-Z]/.test(password);
+                const hasNumber = /\d/.test(password);
+                const hasMinimumLength = password.length >= 8; // Check for minimum length
+                return hasUpperCase && hasNumber && hasMinimumLength;
+            }
 
+
+            // Existing code for toggling password visibility and age check
             const togglePassword1 = document.getElementById('togglePassword1');
             const togglePassword2 = document.getElementById('togglePassword2');
             const passwordInput1 = document.getElementById('password');
@@ -398,7 +432,6 @@ $conn->close();
                 passwordInput2.setAttribute('type', type);
                 this.classList.toggle('fa-eye-slash');
             });
-
 
             function checkAge() {
                 const birthDateInput = document.getElementById('birth_date');
@@ -419,6 +452,7 @@ $conn->close();
                 }
             }
         </script>
+
 
 </body>
 

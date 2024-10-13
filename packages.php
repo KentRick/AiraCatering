@@ -25,7 +25,7 @@ foreach ($categories as $category) {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Packages</title>
+    <title>Catering Packages</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <style>
         h1 {
@@ -146,7 +146,7 @@ foreach ($categories as $category) {
 
 <body>
     <div>
-        <h1 class="text-primary fw-bold mb-5 text-center">Event <span class="text-dark">Packages</span></h1>
+        <h1 class="text-primary fw-bold mb-5 text-center" style="text-decoration: underline; text-decoration-color:black;"  >Catering <span class="text-dark">Packages</span></h1>
 
         <?php foreach ($categories as $category): ?>
             <section class="collection">

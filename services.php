@@ -41,8 +41,8 @@ $result = $conn->query($sql);
 
 
 <div class="container Services" style="padding-bottom: 180px;">
-    <h1 class="text-primary fw-bold mb-5 text-center" id="Event-Packages-Name">
-        Event<span class="text-dark">Services</span>
+    <h1 class="text-primary fw-bold mb-5 text-center" id="Event-Packages-Name" style="text-decoration: underline; text-decoration-color:black;">
+        Catering<span class="text-dark">Services</span>
     </h1>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
         <?php while ($row = $result->fetch_assoc()): ?>
