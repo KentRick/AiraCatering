@@ -179,7 +179,6 @@ $packages = $conn->query($sql_packages);
                 </div>
                 <div class="form-group">
                   <button type="submit" name="add_category" class="btn btn-primary">Add Category</button>
-                  <button type="submit" name="edit_category" class="btn btn-warning">Edit Category</button>
                 </div>
               </form>
 
@@ -198,10 +197,9 @@ $packages = $conn->query($sql_packages);
                       <td>
                         <form method="post" style="display:inline-block">
                           <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
-                          <input type="hidden" name="category_name" value="<?php echo $category['category_name']; ?>">
-                          <button type="submit" name="delete_category" class="btn btn-danger">Delete</button>
-                          <button type="button" class="btn btn-warning" onclick="populateEditCategory('<?php echo $category['id']; ?>', '<?php echo $category['category_name']; ?>')">Edit</button>
+                          <button type="button" class="btn btn-danger" onclick="openDeleteConfirmationModal('<?php echo $category['id']; ?>')">Delete</button>
                         </form>
+                        <button type="button" class="btn btn-warning" onclick="openEditCategoryModal('<?php echo $category['id']; ?>', '<?php echo $category['category_name']; ?>')">Edit</button>
                       </td>
                     </tr>
                   <?php endwhile; ?>
@@ -210,75 +208,177 @@ $packages = $conn->query($sql_packages);
             </div>
           </div>
         </div>
-
-        <!-- Column 2: Packages -->
-        <div class="col-md-6">
-          <div class="card column-segment">
-            <div class="card-header">
-              <h4>Packages</h4>
-            </div>
-            <div class="card-body">
-              <form method="post" enctype="multipart/form-data">
-                <input type="hidden" name="package_id" id="package_id">
-                <div class="form-group">
-                  <label for="category_id">Select Category</label>
-                  <select name="category_id" id="category_id" class="form-select" required>
-                    <?php
-                    $categories = $conn->query($sql_categories);
-                    while ($category = $categories->fetch_assoc()): ?>
-                      <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
-                    <?php endwhile; ?>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <input type="text" name="title" id="title" class="form-control" placeholder="Enter Package Title" required>
-                </div>
-                <div class="form-group">
-                  <textarea name="description" id="description" class="form-control" placeholder="Enter Package Description" required></textarea>
-                </div>
-                <div class="form-group">
-                  <input type="file" name="image" class="form-control">
-                </div>
-                <div class="form-group">
-                  <button type="submit" name="add_package" class="btn btn-primary">Add Package</button>
-                  <button type="submit" name="edit_package" class="btn btn-warning">Edit Package</button>
-                </div>
-              </form>
-
-              <h5>Existing Packages:</h5>
-              <table class="table table-bordered">
-                <thead>
-                  <tr>
-                    <th>Package Title</th>
-                    <th>Category</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php while ($package = $packages->fetch_assoc()): ?>
-                    <tr>
-                      <td><?php echo $package['title']; ?></td>
-                      <td><?php echo $package['category_name']; ?></td>
-                      <td>
-                        <form method="post" style="display:inline-block">
-                          <input type="hidden" name="package_id" value="<?php echo $package['id']; ?>">
-                          <input type="hidden" name="title" value="<?php echo $package['title']; ?>">
-                          <input type="hidden" name="category_id" value="<?php echo $package['category_id']; ?>">
-                          <input type="hidden" name="description" value="<?php echo $package['description']; ?>">
-                          <button type="submit" name="delete_package" class="btn btn-danger">Delete</button>
-                          <button type="button" class="btn btn-warning" onclick="populateEditPackage('<?php echo $package['id']; ?>', '<?php echo $package['title']; ?>', '<?php echo $package['description']; ?>', '<?php echo $package['category_id']; ?>')">Edit</button>
-                        </form>
-                      </td>
-                    </tr>
-                  <?php endwhile; ?>
-                </tbody>
-              </table>
+        <!-- Edit Category Modal -->
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="post">
+                  <input type="hidden" name="category_id" id="modal_category_id">
+                  <div class="form-group mb-3">
+                    <label for="modal_category_name">Category Name</label>
+                    <input type="text" name="category_name" id="modal_category_name" class="form-control" placeholder="Enter Category Name" required>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" name="edit_category" class="btn btn-warning">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
+        </div>
+                    <!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this category? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <form method="post" id="deleteCategoryForm">
+          <input type="hidden" name="category_id" id="modal_delete_category_id">
+          <button type="submit" name="delete_category" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+        <!-- Column 2: Packages -->
+<div class="col-md-6">
+  <div class="card column-segment">
+    <div class="card-header">
+      <h4>Packages</h4>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        <input type="hidden" name="package_id" id="package_id">
+        <div class="form-group">
+          <label for="category_id">Select Category</label>
+          <select name="category_id" id="category_id" class="form-select" required>
+            <?php
+            $categories = $conn->query($sql_categories);
+            while ($category = $categories->fetch_assoc()): ?>
+              <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
+            <?php endwhile; ?>
+          </select>
+        </div>
+        <div class="form-group">
+          <input type="text" name="title" id="title" class="form-control" placeholder="Enter Package Title" required>
+        </div>
+        <div class="form-group">
+          <textarea name="description" id="description" class="form-control" placeholder="Enter Package Description" required></textarea>
+        </div>
+        <div class="form-group">
+          <input type="file" name="image" class="form-control">
+        </div>
+        <div class="form-group">
+          <button type="submit" name="add_package" class="btn btn-primary">Add Package</button>
+        </div>
+      </form>
+
+      <h5>Existing Packages:</h5>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Package Title</th>
+            <th>Category</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php while ($package = $packages->fetch_assoc()): ?>
+            <tr>
+              <td><?php echo $package['title']; ?></td>
+              <td><?php echo $package['category_name']; ?></td>
+              <td>
+                <form method="post" style="display:inline-block">
+                  <input type="hidden" name="package_id" value="<?php echo $package['id']; ?>">
+                  <button type="button" class="btn btn-danger" onclick="openDeletePackageConfirmationModal('<?php echo $package['id']; ?>')">Delete</button>
+                </form>
+                <button type="button" class="btn btn-warning" onclick="openEditPackageModal('<?php echo $package['id']; ?>', '<?php echo $package['title']; ?>', '<?php echo $package['description']; ?>', '<?php echo $package['category_id']; ?>')">Edit</button>
+              </td>
+            </tr>
+          <?php endwhile; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  <!-- Edit Package Modal -->
+  <div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editPackageModalLabel">Edit Package</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" enctype="multipart/form-data">
+            <input type="hidden" name="package_id" id="modal_package_id">
+            <div class="form-group mb-3">
+              <label for="modal_category_id">Select Category</label>
+              <select name="category_id" id="modal_category_id" class="form-select" required>
+                <?php
+                $categories = $conn->query($sql_categories);
+                while ($category = $categories->fetch_assoc()): ?>
+                  <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
+                <?php endwhile; ?>
+              </select>
+            </div>
+            <div class="form-group mb-3">
+              <label for="modal_title">Package Title</label>
+              <input type="text" name="title" id="modal_title" class="form-control" placeholder="Enter Package Title" required>
+            </div>
+            <div class="form-group mb-3">
+              <label for="modal_description">Package Description</label>
+              <textarea name="description" id="modal_description" class="form-control" placeholder="Enter Package Description" required></textarea>
+            </div>
+            <div class="form-group mb-3">
+              <label for="modal_image">Package Image (optional)</label>
+              <input type="file" name="image" id="modal_image" class="form-control">
+            </div>
+            <div class="modal-footer">
+              <button type="submit" name="edit_package" class="btn btn-warning">Save Changes</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Modal for Packages -->
+<div class="modal fade" id="deletePackageConfirmationModal" tabindex="-1" aria-labelledby="deletePackageConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deletePackageConfirmationModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this package? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <form method="post" id="deletePackageForm">
+          <input type="hidden" name="package_id" id="modal_delete_package_id">
+          <button type="submit" name="delete_package" class="btn btn-danger">Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
   <script>
     function populateEditCategory(id, name) {
@@ -292,6 +392,42 @@ $packages = $conn->query($sql_packages);
       document.getElementById('description').value = description;
       document.getElementById('category_id').value = category_id;
     }
+
+    //modal
+    function openEditCategoryModal(id, name) {
+      document.getElementById('modal_category_id').value = id;
+      document.getElementById('modal_category_name').value = name;
+      // Show the modal
+      var editCategoryModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+      editCategoryModal.show();
+    }
+
+    function openEditPackageModal(id, title, description, categoryId) {
+      // Populate modal fields with package details
+      document.getElementById('modal_package_id').value = id;
+      document.getElementById('modal_title').value = title;
+      document.getElementById('modal_description').value = description;
+      document.getElementById('modal_category_id').value = categoryId;
+
+      // Show the modal
+      var editPackageModal = new bootstrap.Modal(document.getElementById('editPackageModal'));
+      editPackageModal.show();
+    }
+
+    function openDeleteConfirmationModal(categoryId) {
+    document.getElementById('modal_delete_category_id').value = categoryId;
+    // Show the modal
+    var deleteConfirmationModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
+    deleteConfirmationModal.show();
+  }
+
+  function openDeletePackageConfirmationModal(packageId) {
+    document.getElementById('modal_delete_package_id').value = packageId;
+    // Show the modal
+    var deletePackageConfirmationModal = new bootstrap.Modal(document.getElementById('deletePackageConfirmationModal'));
+    deletePackageConfirmationModal.show();
+  }
+
   </script>
 
   <!-- JavaScript Libraries -->
