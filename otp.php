@@ -21,8 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update_stmt->bind_param('i', $user_id);
         $update_stmt->execute();
         $update_stmt->close();
-
-        echo "<p style='color:green;'>OTP verified successfully! You can now log in.</p>";
+        
+        header("Location: login.php");
     } else {
         echo "<p style='color:red;'>Invalid or expired OTP. Please try again.</p>";
     }

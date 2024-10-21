@@ -1,4 +1,4 @@
-<?php
+<?php 
 session_start(); // Start the session
 include 'db_connect.php'; // Include your database connection file
 
@@ -6,17 +6,17 @@ $error_message = ''; // Variable to hold error messages
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Collect and sanitize form data
-    $email = $_POST['email'];
+    $email = trim($_POST['email']); // Sanitize input
     $password = $_POST['password'];
 
     // Prepare and execute the SQL statement to check the user's credentials
-    $stmt = $conn->prepare("SELECT id, password, first_name, is_verified FROM users WHERE email = ?");
+    $stmt = $conn->prepare("SELECT id, password, first_name, last_name, is_verified FROM users WHERE email = ?");
     $stmt->bind_param('s', $email);
     $stmt->execute();
     $stmt->store_result(); // Store the result
 
     if ($stmt->num_rows > 0) {
-        $stmt->bind_result($user_id, $hashed_password, $first_name, $is_verified);
+        $stmt->bind_result($user_id, $hashed_password, $first_name, $last_name, $is_verified);
         $stmt->fetch();
 
         // Verify the password
@@ -24,8 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Check if the account is verified
             if ($is_verified) {
                 // Store user details in session
-                $_SESSION['user_id'] = $user_id;
-                $_SESSION['first_name'] = $first_name;
+                $_SESSION['users'] = [
+                    'id' => $user_id,
+                    'first_name' => $first_name,
+                    'last_name' => $last_name
+                ];
 
                 // Redirect to a protected page (e.g., dashboard or home page)
                 header("Location: index.php");
@@ -43,8 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = "Invalid email or password.";
     }
 
-
-    
     // Close the statement
     $stmt->close();
 }
