@@ -1,12 +1,9 @@
 <?php
-include 'session.php';
-?>
-
-<?php
+ session_start();
 include 'calendar.php';
 ?>
 
-<?php 
+<?php
 include 'db_connect.php';
 ?>
 
@@ -58,76 +55,8 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
         Spinner End -->
 
   <!-- Navbar start -->
-  <div class="container-fluid nav-bar">
-    <div class="container">
-      <nav class="navbar navbar-light navbar-expand-lg py-4">
-        <a href="index.php" class="navbar-brand">
-          <h1 class="text-primary fw-bold mb-0">
-            Aira<span class="text-dark">Catering</span>
-          </h1>
-        </a>
-        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-          <span class="fa fa-bars text-primary"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <div class="navbar-nav mx-auto">
-            <a href="index.php" class="nav-item nav-link active">Home</a>
-            <a href="catering services.php" class="nav-item nav-link">Catering Services</a>
-            <a href="catering packages.php" class="nav-item nav-link">Catering Packages</a>
-            <a href="#about" class="nav-item nav-link">About Us</a>
-            <!-- Updated Button to Open Modal -->
-            <a href="#" class="btn btn-primary py-2 px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#exampleModal">Reservation Calendar</a>
 
-          </div>
-
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <?php if ($user !== 'Guest'): ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="profile-pic">
-                    <img src="https://placehold.co/35" alt="Profile Picture">
-                  </div>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $user; ?></a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a></li>
-                </ul>
-              </li>
-            <?php endif; ?>
-          </ul>
-        </div>
-      </nav>
-    </div>
-  </div>
-
-  <!-- Include the Modal HTML Here -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Reservation Calendar</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <input type="month" id="month-picker" class="form-control" value="2024-09" min="" />
-          </div>
-          <div id="calendar"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-
+  <?php include 'header.php'; ?>
   <!-- Navbar End -->
 
 
@@ -231,73 +160,73 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
       </div>
       <!-- About End -->
 
-<!-- Events Start -->
-<div class="container-fluid event py-6">
-    <div class="container">
-        <div class="text-center wow bounceInUp" data-wow-delay="0.1s">
+      <!-- Events Start -->
+      <div class="container-fluid event py-6">
+        <div class="container">
+          <div class="text-center wow bounceInUp" data-wow-delay="0.1s">
             <small class="d-inline-block fw-bold text-dark text-uppercase bg-light border border-primary rounded-pill px-4 py-1 mb-3">Events</small>
             <h1 class="display-5 mb-5">Events Gallery</h1>
-        </div>
-        <div class="tab-class text-center">
+          </div>
+          <div class="tab-class text-center">
             <div id="navCarousel" class="carousel slide" data-bs-ride="false">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <ul class="nav nav-pills d-inline-flex justify-content-center mb-5">
-                            <li class="nav-item p-2">
-                                <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-all">
-                                    <span class="text-dark" style="width: 150px">All Events</span>
-                                </a>
-                            </li>
-                            <?php 
-                            // Fetch distinct categories from the database
-                            $sql = "SELECT DISTINCT category FROM events";
-                            $result = $conn->query($sql);
-                            $tabs = [];
-                            if ($result->num_rows > 0) {
-                                while($row = $result->fetch_assoc()) {
-                                    $tabs[] = $row['category'];
-                                }
-                            }
-                            
-                            // Create nav pills
-                            for ($i = 0; $i < count($tabs); $i++) {
-                                if ($i > 0 && $i % 5 == 0) { // Every 5 items create a new carousel item
-                                    echo '</ul></div><div class="carousel-item"><ul class="nav nav-pills d-inline-flex justify-content-center mb-5">';
-                                }
-                                echo '
+              <div class="carousel-inner">
+                <div class="carousel-item active">
+                  <ul class="nav nav-pills d-inline-flex justify-content-center mb-5">
+                    <li class="nav-item p-2">
+                      <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill active" data-bs-toggle="pill" href="#tab-all">
+                        <span class="text-dark" style="width: 150px">All Events</span>
+                      </a>
+                    </li>
+                    <?php
+                    // Fetch distinct categories from the database
+                    $sql = "SELECT DISTINCT category FROM events";
+                    $result = $conn->query($sql);
+                    $tabs = [];
+                    if ($result->num_rows > 0) {
+                      while ($row = $result->fetch_assoc()) {
+                        $tabs[] = $row['category'];
+                      }
+                    }
+
+                    // Create nav pills
+                    for ($i = 0; $i < count($tabs); $i++) {
+                      if ($i > 0 && $i % 5 == 0) { // Every 5 items create a new carousel item
+                        echo '</ul></div><div class="carousel-item"><ul class="nav nav-pills d-inline-flex justify-content-center mb-5">';
+                      }
+                      echo '
                                 <li class="nav-item p-2">
                                     <a class="d-flex mx-2 py-2 border border-primary bg-light rounded-pill" data-bs-toggle="pill" href="#tab-' . $tabs[$i] . '">
                                         <span class="text-dark" style="width: 150px">' . $tabs[$i] . '</span>
                                     </a>
                                 </li>';
-                            }
-                            ?>
-                        </ul>
-                    </div>
+                    }
+                    ?>
+                  </ul>
                 </div>
-                <button class="carousel-control-prev border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
+              </div>
+              <button class="carousel-control-prev border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button class="carousel-control-next border border-primary bg-light rounded-pill mx-1" type="button" data-bs-target="#navCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+              </button>
             </div>
 
             <div class="tab-content">
-                <!-- All Events Tab -->
-                <div id="tab-all" class="tab-pane fade show active p-0">
+              <!-- All Events Tab -->
+              <div id="tab-all" class="tab-pane fade show active p-0">
+                <div class="row g-4">
+                  <div class="col-lg-12">
                     <div class="row g-4">
-                        <div class="col-lg-12">
-                            <div class="row g-4">
-                                <?php 
-                                // Fetch all events from the database
-                                $sql = "SELECT event_name, category, image_path FROM events";
-                                $result = $conn->query($sql);
-                                if ($result->num_rows > 0) {
-                                    while($event = $result->fetch_assoc()) {
-                                        echo '
+                      <?php
+                      // Fetch all events from the database
+                      $sql = "SELECT event_name, category, image_path FROM events";
+                      $result = $conn->query($sql);
+                      if ($result->num_rows > 0) {
+                        while ($event = $result->fetch_assoc()) {
+                          echo '
                                         <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.1s">
                                             <div class="event-img position-relative">
                                                 <img class="img-fluid rounded w-100" src="' . $event['image_path'] . '" alt="" />
@@ -309,32 +238,32 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
                                                 </div>
                                             </div>
                                         </div>';
-                                    }
-                                } else {
-                                    echo "<p>No events available.</p>";
-                                }
-                                ?>
-                            </div>
-                        </div>
+                        }
+                      } else {
+                        echo "<p>No events available.</p>";
+                      }
+                      ?>
                     </div>
+                  </div>
                 </div>
-                <!-- Category-specific Tabs -->
-                <?php
-                foreach ($tabs as $tab) {
-                    echo '<div id="tab-' . $tab . '" class="tab-pane fade show p-0">';
-                    echo '<div class="row g-4">';
-                    echo '<div class="col-lg-12">';
-                    echo '<div class="row g-4">';
+              </div>
+              <!-- Category-specific Tabs -->
+              <?php
+              foreach ($tabs as $tab) {
+                echo '<div id="tab-' . $tab . '" class="tab-pane fade show p-0">';
+                echo '<div class="row g-4">';
+                echo '<div class="col-lg-12">';
+                echo '<div class="row g-4">';
 
-                    // Fetch events specific to this category
-                    $sql = "SELECT event_name, image_path FROM events WHERE category = ?";
-                    $stmt = $conn->prepare($sql);
-                    $stmt->bind_param("s", $tab);
-                    $stmt->execute();
-                    $result = $stmt->get_result();
-                    if ($result->num_rows > 0) {
-                        while($event = $result->fetch_assoc()) {
-                            echo '
+                // Fetch events specific to this category
+                $sql = "SELECT event_name, image_path FROM events WHERE category = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("s", $tab);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($result->num_rows > 0) {
+                  while ($event = $result->fetch_assoc()) {
+                    echo '
                             <div class="col-md-6 col-lg-3 wow bounceInUp" data-wow-delay="0.1s">
                                 <div class="event-img position-relative">
                                     <img class="img-fluid rounded w-100" src="' . $event['image_path'] . '" alt="" />
@@ -346,22 +275,22 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
                                     </div>
                                 </div>
                             </div>';
-                        }
-                    } else {
-                        echo "<p>No events in this category.</p>";
-                    }
-
-                    echo '</div>'; // End row
-                    echo '</div>'; // End col-lg-12
-                    echo '</div>'; // End row g-4
-                    echo '</div>'; // End tab-pane
+                  }
+                } else {
+                  echo "<p>No events in this category.</p>";
                 }
-                ?>
+
+                echo '</div>'; // End row
+                echo '</div>'; // End col-lg-12
+                echo '</div>'; // End row g-4
+                echo '</div>'; // End tab-pane
+              }
+              ?>
             </div>
+          </div>
         </div>
-    </div>
-</div>
-<!-- Events End -->
+      </div>
+      <!-- Events End -->
 
 
       <!-- My Menu Start -->

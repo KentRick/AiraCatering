@@ -1,5 +1,19 @@
 <?php
-include 'session.php';
+session_start(); // Start the session
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // If not logged in, redirect to login page
+    header("Location: login.php");
+    exit();
+}
+
+include 'db_connect.php';
+
+// Fetch event packages from the database
+$sql = "SELECT title, description FROM event_packages";
+$result = $conn->query($sql);
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -13,17 +27,11 @@ include 'session.php';
   <!-- Google Web Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playball&display=swap"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Playball&display=swap" rel="stylesheet" />
 
   <!-- Icon Font Stylesheet -->
-  <link
-    rel="stylesheet"
-    href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css"
-    rel="stylesheet" />
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
 
   <!-- Libraries Stylesheet -->
   <link href="lib/animate/animate.min.css" rel="stylesheet" />
@@ -36,54 +44,12 @@ include 'session.php';
   <!-- Template Stylesheet -->
   <link href="css/style.css" rel="stylesheet" />
   <link rel="stylesheet" href="css/ionicons.min.css">
-
-
 </head>
 
 <body>
 
   <!-- Navbar start -->
-  <div class="container-fluid nav-bar">
-    <div class="container">
-      <nav class="navbar navbar-light navbar-expand-lg py-4">
-        <a href="index.php" class="navbar-brand">
-          <h1 class="text-primary fw-bold mb-0">
-            Aira<span class="text-dark">Catering</span>
-          </h1>
-        </a>
-        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-          <span class="fa fa-bars text-primary"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <div class="navbar-nav mx-auto">
-            <!-- Removed links here -->
-          </div>
-
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <?php if ($username !== 'Guest'): ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="profile-pic">
-                    <img src="https://placehold.co/35" alt="Profile Picture">
-                  </div>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a></li>
-                </ul>
-              </li>
-            <?php endif; ?>
-          </ul>
-
-        </div>
-      </nav>
-    </div>
-  </div>
+  <?php include 'header.php';?>
   <!-- Navbar End -->
 
   <style>
@@ -96,10 +62,7 @@ include 'session.php';
       display: flex;
       flex-direction: column;
       align-items: center;
-
-
     }
-
 
     .custom-form-container {
       background-color: #fff;
@@ -110,7 +73,6 @@ include 'session.php';
       max-width: 500px;
       margin-top: 20px;
       margin-bottom: 20px;
-
     }
 
     .custom-h1 {
@@ -166,7 +128,6 @@ include 'session.php';
     }
   </style>
 
-
   <!-- Event Details -->
   <h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
     Con<span class="text-dark">tract</span>
@@ -175,36 +136,38 @@ include 'session.php';
     <div class="custom-form-container">
       <h1>Event Details</h1>
       <form action="menu.php" method="post" class="custom-form">
-
         <label for="event-packages" class="custom-label">Event Packages:</label>
         <select id="event-packages" name="event-packages" class="custom-select" required>
           <option value="">Select an event type</option>
-          <option value="wedding1">Wedding Packages 1</option>
-          <option value="wedding2">Wedding Packages 2</option>
-          <option value="wedding3">Wedding Packages 3</option>
-          <option value="party">Party</option>
-          <option value="other">Other</option>
+          <option value="Custom" data-description="Custom event package" data-guests="N/A">Custom</option>
+          <?php
+          if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+              // Assuming description contains the number of guests and event type
+              preg_match('/\d+/', $row['description'], $matches);
+              $numberOfGuests = isset($matches[0]) ? $matches[0] : 'N/A';
+              echo '<option value="' . htmlspecialchars($row['title']) . '" 
+                    data-description="' . htmlspecialchars($row['description']) . '" 
+                    data-guests="' . $numberOfGuests . '" 
+                    data-event-type="' . htmlspecialchars($row['event_type']) . '">' .
+                htmlspecialchars($row['title']) .
+                '</option>';
+            }
+          } else {
+            echo '<option value="">No packages available</option>';
+          }
+          ?>
         </select>
 
         <label for="number-of-guests" class="custom-label">Number Of Guests:</label>
         <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required disabled>
 
-
+        <!-- Event Type Input -->
         <div id="event-type-container" class="custom-hidden">
           <label for="event-type" class="custom-label">Type of Event:</label>
-          <select id="event-type" name="event-type" class="custom-select" required>
-            <option value="N/A" style="display:none;">N/A</option>
-            <option value="wedding">Wedding</option>
-            <option value="birthday">Birthday</option>
-            <option value="conference">Conference</option>
-            <option value="party">Party</option>
-            <option value="other">Other</option>
-          </select>
+          <input type="text" id="event-type" name="event-type" class="custom-input" required placeholder="Specify event type">
         </div>
 
-
-
-        <!-- Hidden text box for specifying the event when "Other" is selected -->
         <div id="other-event-container" class="custom-hidden">
           <label for="other-event" class="custom-label">Specify Event:</label>
           <input type="text" id="other-event" name="other-event" class="custom-input">
@@ -221,8 +184,6 @@ include 'session.php';
     </div>
   </div>
   <!-- Event Details End -->
-
-
 
   <!-- Footer Start -->
   <footer class="container-fluid footer-07">
@@ -241,7 +202,11 @@ include 'session.php';
           </p>
           <ul class="ftco-footer-social p-0">
             <li class="ftco-animate">
-              <a href="#" data-toggle="tooltip" data-placement="top" title="Facebook"><span class="ion-logo-facebook"></span></a>
+              <a
+                href="#"
+                data-toggle="tooltip"
+                data-placement="top"
+                title="Facebook"><span class="ion-logo-facebook"></span></a>
             </li>
           </ul>
         </div>
@@ -255,9 +220,7 @@ include 'session.php';
     <div class="container">
       <div class="row">
         <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-          <span class="text-light">
-            <a href="#"><i class="fas fa-copyright text-light me-2"></i>AiraCatering</a>, All rights reserved.
-          </span>
+          <span class="text-light"><a href="#"><i class="fas fa-copyright text-light me-2"></i>AiraCatering</a>, All right reserved.</span>
         </div>
       </div>
     </div>
@@ -265,119 +228,46 @@ include 'session.php';
   <!-- Copyright End -->
 
   <!-- Back to Top -->
-  <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+  <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top">
+    <i class="fa fa-arrow-up"></i>
+  </a>
 
   <!-- JavaScript Libraries -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="lib/wow/wow.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"></script>
   <script src="lib/easing/easing.min.js"></script>
-  <script src="lib/waypoints/waypoints.min.js"></script>
-  <script src="lib/counterup/counterup.min.js"></script>
-  <script src="lib/lightbox/js/lightbox.min.js"></script>
   <script src="lib/owlcarousel/owl.carousel.min.js"></script>
-
-  <!-- Template Javascript -->
   <script src="js/main.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const eventPackagesSelect = document.getElementById('event-packages');
-      const eventTypeSelect = document.getElementById('event-type');
-      const otherEventContainer = document.getElementById('other-event-container');
-      const eventTypeContainer = document.getElementById('event-type-container');
-      const numberOfGuestsInput = document.getElementById('number-of-guests');
-      const form = document.querySelector('form');
+    // JavaScript to handle package selection and input enabling
+    document.getElementById('event-packages').addEventListener('change', function () {
+      var selectedOption = this.options[this.selectedIndex];
+      var numberOfGuestsInput = document.getElementById('number-of-guests');
+      var eventTypeContainer = document.getElementById('event-type-container');
+      var eventTypeInput = document.getElementById('event-type');
+      var otherEventContainer = document.getElementById('other-event-container');
 
-      eventPackagesSelect.addEventListener('change', () => {
-        if (eventPackagesSelect.value === 'other') {
-          otherEventContainer.classList.remove('custom-hidden');
-          eventTypeContainer.classList.remove('custom-hidden');
-          numberOfGuestsInput.value = '';
-          numberOfGuestsInput.disabled = false;
-          numberOfGuestsInput.classList.remove('grayed-out');
-          numberOfGuestsInput.removeAttribute('readonly'); // Make it editable for 'other'
-        } else {
-          otherEventContainer.classList.add('custom-hidden');
-          eventTypeContainer.classList.add('custom-hidden');
+      // Populate number of guests based on selected package
+      numberOfGuestsInput.value = selectedOption.getAttribute('data-guests');
 
-          if (eventPackagesSelect.value) {
-            switch (eventPackagesSelect.value) {
-              case 'wedding1':
-                numberOfGuestsInput.value = 100;
-                break;
-              case 'wedding2':
-                numberOfGuestsInput.value = 150;
-                break;
-              case 'wedding3':
-                numberOfGuestsInput.value = 200;
-                break;
-              default:
-                numberOfGuestsInput.value = '';
-            }
-
-            numberOfGuestsInput.disabled = true; // Make it uneditable
-            numberOfGuestsInput.classList.remove('grayed-out');
-            numberOfGuestsInput.setAttribute('readonly', true); // Set as readonly
-          } else {
-            numberOfGuestsInput.disabled = false;
-            numberOfGuestsInput.classList.remove('grayed-out');
-            numberOfGuestsInput.value = '';
-            numberOfGuestsInput.removeAttribute('readonly'); // Make it editable again
-          }
-        }
-      });
-
-
-      eventTypeSelect.addEventListener('change', () => {
-        if (eventTypeSelect.value === 'other') {
-          otherEventContainer.classList.remove('custom-hidden'); // Show "Specify Event" input
-        } else {
-          otherEventContainer.classList.add('custom-hidden'); // Hide "Specify Event" input
-        }
-
-        // Enable number of guests input if an event package is selected
-        if (eventPackagesSelect.value) {
-          numberOfGuestsInput.disabled = false;
-          numberOfGuestsInput.classList.remove('grayed-out');
-        }
-      });
-
-      form.addEventListener('submit', (event) => {
-        // Check if event type is required and is not selected
-        if (eventTypeSelect.required && eventTypeSelect.value === '') {
-          eventTypeSelect.focus(); // Focus on the select
-          event.preventDefault(); // Prevent form submission
-          alert("Please select an event type.");
-        }
-      });
-    });
-
-
-
-    form.addEventListener('submit', (event) => {
-      // Check if event type is required and is set to "N/A"
-      if (eventTypeSelect.required && eventTypeSelect.value === 'N/A') {
-        eventTypeSelect.focus(); // Focus on the select
-        event.preventDefault(); // Prevent form submission
-        alert("Please select a valid event type.");
+      // Check if the selected package is "Custom"
+      if (selectedOption.value === "Custom") {
+        numberOfGuestsInput.disabled = false; // Enable the number of guests input
+        eventTypeContainer.classList.remove('custom-hidden'); // Show event type container
+        eventTypeInput.disabled = false; // Enable the event type input
+        otherEventContainer.classList.add('custom-hidden'); // Hide other event input
+        eventTypeInput.value = ''; // Clear the input for custom
+      } else {
+        numberOfGuestsInput.disabled = true; // Disable the number of guests input
+        eventTypeContainer.classList.add('custom-hidden'); // Hide event type container
+        eventTypeInput.disabled = true; // Disable the event type input
+        eventTypeInput.value = ''; // Clear the input when not custom
+        otherEventContainer.classList.add('custom-hidden'); // Hide other event input
       }
     });
-
-
-    /* Example of dynamic guest numbers
-const packageGuestNumbers = {
-    wedding1: 100,
-    wedding2: 150,
-    wedding3: 200,
-};
-
- Use the following to set the value dynamically
-numberOfGuestsInput.value = packageGuestNumbers[eventPackagesSelect.value] || '';   */
   </script>
-
-
-
 </body>
 
 </html>

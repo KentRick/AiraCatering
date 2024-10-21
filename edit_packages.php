@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($_POST['add_package'])) {
     $category_id = $_POST['category_id'];
     $title = $_POST['title'];
+    $pax = $_POST['pax'];
     $description = $_POST['description'];
 
     // File upload handling
@@ -37,13 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $target = "uploads/" . basename($image);
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-      $sql = "INSERT INTO event_packages (category_id, title, description, image) VALUES ('$category_id', '$title', '$description', '$image')";
+      $sql = "INSERT INTO event_packages (category_id, title, pax, description, image) VALUES ('$category_id', '$title', '$pax', '$description', '$image')";
       $conn->query($sql);
     }
   } elseif (isset($_POST['edit_package'])) {
     $package_id = $_POST['package_id'];
     $category_id = $_POST['category_id'];
     $title = $_POST['title'];
+    $pax = $_POST['pax'];
     $description = $_POST['description'];
 
     // Handle image update if uploaded
@@ -277,8 +279,12 @@ $packages = $conn->query($sql_packages);
           <input type="text" name="title" id="title" class="form-control" placeholder="Enter Package Title" required>
         </div>
         <div class="form-group">
+          <input type="text" name="pax" id="pax" class="form-control" placeholder="Enter Package PAX" required>
+        </div>
+        <div class="form-group">
           <textarea name="description" id="description" class="form-control" placeholder="Enter Package Description" required></textarea>
         </div>
+        
         <div class="form-group">
           <input type="file" name="image" class="form-control">
         </div>

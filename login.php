@@ -1,66 +1,58 @@
 <?php
-// Start session at the very beginning
-session_start();
+session_start(); // Start the session
+include 'db_connect.php'; // Include your database connection file
 
-// Database configuration
-include 'db_connect.php';
+$error_message = ''; // Variable to hold error messages
 
-// Create connection
-$conn = new mysqli($host, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
-}
-
-// Check if the user is already logged in
-if (isset($_SESSION['first_name'])) {
-  header("Location: index.php");
-  exit();
-}
-
-// Initialize error message variable
-$error_message = "";
-
-// Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  // Collect and sanitize form data
-  $email = $_POST['email'];
-  $password = $_POST['password'];
+    // Collect and sanitize form data
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-  // Prepare SQL statement
-  $stmt = $conn->prepare("SELECT first_name, password FROM users WHERE email = ?");
-  $stmt->bind_param('s', $email);
+    // Prepare and execute the SQL statement to check the user's credentials
+    $stmt = $conn->prepare("SELECT id, password, first_name, is_verified FROM users WHERE email = ?");
+    $stmt->bind_param('s', $email);
+    $stmt->execute();
+    $stmt->store_result(); // Store the result
 
-  // Execute statement
-  $stmt->execute();
-  $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        $stmt->bind_result($user_id, $hashed_password, $first_name, $is_verified);
+        $stmt->fetch();
 
-  // Check if user exists
-  if ($stmt->num_rows === 1) {
-    $stmt->bind_result($first_name, $hashed_password);
-    $stmt->fetch();
+        // Verify the password
+        if (password_verify($password, $hashed_password)) {
+            // Check if the account is verified
+            if ($is_verified) {
+                // Store user details in session
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['first_name'] = $first_name;
 
-    // Verify password
-    if (password_verify($password, $hashed_password)) {
-      // Store user data in session
-      $_SESSION['last_name'] = $last_name;
-      header("Location: index.php");
-      exit();
+                // Redirect to a protected page (e.g., dashboard or home page)
+                header("Location: index.php");
+                exit();
+            } else {
+                // Account not verified
+                $error_message = "Your account is not verified. Please check your email for the OTP.";
+            }
+        } else {
+            // Invalid password
+            $error_message = "Invalid email or password.";
+        }
     } else {
-      $error_message = "Invalid password.";
+        // Email not found
+        $error_message = "Invalid email or password.";
     }
-  } else {
-    $error_message = "No user found with that email address.";
-  }
 
-  // Close statement
-  $stmt->close();
+
+    
+    // Close the statement
+    $stmt->close();
 }
 
-// Close connection
+// Close the database connection
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -195,81 +187,38 @@ $conn->close();
 </head>
 
 <body>
-
-  <div class="container">
-    <header>Login</header>
-    <?php if ($error_message): ?>
-      <p class="error"><?php echo $error_message; ?></p>
-    <?php endif; ?>
-    <form action="" method="post" class="form">
-      <div class="input-box">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" placeholder="Enter email address" required />
-      </div>
-      <div class="input-box">
-        <label for="password">Password</label>
-        <div class="input-with-icon">
-          <input type="password" id="password" name="password" placeholder="Enter password" required />
-          <i class="far fa-eye" id="togglePassword1" style="cursor: pointer;"></i>
-        </div>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="successModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Registration Successful</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          <p>Your registration was successful! You can now log in.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
+    <div class="container">
+        <header>Login</header>
+        <?php if ($error_message): ?>
+            <p class="error"><?php echo $error_message; ?></p>
+        <?php endif; ?>
+        <form action="" method="post" class="form">
+            <div class="input-box">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="Enter email address" required />
+            </div>
+            <div class="input-box">
+                <label for="password">Password</label>
+                <div class="input-with-icon">
+                    <input type="password" id="password" name="password" placeholder="Enter password" required />
+                    <i class="far fa-eye" id="togglePassword1" style="cursor: pointer;"></i>
+                </div>
+            </div>
+            <button type="submit">Submit</button>
+        </form>
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <?php if (isset($_SESSION['registered'])): ?>
     <script>
-      $(document).ready(function() {
-        $('#successModal').modal('show');
-      });
+        const togglePassword1 = document.getElementById('togglePassword1');
+        const passwordInput1 = document.getElementById('password');
+
+        togglePassword1.addEventListener('click', function() {
+            const type = passwordInput1.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput1.setAttribute('type', type);
+            this.classList.toggle('fa-eye-slash');
+        });
     </script>
-    <?php unset($_SESSION['registered']); ?>
-  <?php endif; ?>
-
-
-
-  <script>
-    const togglePassword1 = document.getElementById('togglePassword1');
-    const togglePassword2 = document.getElementById('togglePassword2');
-    const passwordInput1 = document.getElementById('password');
-    const passwordInput2 = document.getElementById('retype_password');
-
-    togglePassword1.addEventListener('click', function() {
-      const type = passwordInput1.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput1.setAttribute('type', type);
-      this.classList.toggle('fa-eye-slash');
-    });
-
-    togglePassword2.addEventListener('click', function() {
-      const type = passwordInput2.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput2.setAttribute('type', type);
-      this.classList.toggle('fa-eye-slash');
-    });
-  </script>
 
 </body>
-
+</html>
 </html>

@@ -1,5 +1,12 @@
 <?php
-// File: menu.php
+session_start(); // Start the session
+
+// Check if the user is logged in
+if (!isset($_SESSION['user_id'])) {
+    // If not logged in, redirect to login page
+    header("Location: login.php");
+    exit();
+}
 include 'db_connect.php'; // Include the database connection file
 
 // Fetch menu data
@@ -118,48 +125,8 @@ $conn->close();
 
 <body>
 
-  <!-- Navbar start -->
-  <div class="container-fluid nav-bar">
-    <div class="container">
-      <nav class="navbar navbar-light navbar-expand-lg py-4">
-        <a href="index.php" class="navbar-brand">
-          <h1 class="text-primary fw-bold mb-0">
-            Aira<span class="text-dark">Catering</span>
-          </h1>
-        </a>
-        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-          <span class="fa fa-bars text-primary"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <div class="navbar-nav mx-auto">
-            <!-- Removed links here -->
-          </div>
-
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0 profile-menu">
-            <?php if ($username !== 'Guest'): ?>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <div class="profile-pic">
-                    <img src="https://placehold.co/35" alt="Profile Picture">
-                  </div>
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" id="username"> <i class="fas fa-user fa-fw"></i> <?php echo $username; ?></a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-sliders-h fa-fw"></i> Account</a></li>
-                  <li><a class="dropdown-item" href="#"> <i class="fas fa-cog fa-fw"></i> Settings</a></li>
-                  <li>
-                    <hr class="dropdown-divider">
-                  </li>
-                  <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt fa-fw"></i> Log Out</a></li>
-                </ul>
-              </li>
-            <?php endif; ?>
-          </ul>
-
-        </div>
-      </nav>
-    </div>
-  </div>
+    <!-- Navbar start -->
+    <?php include 'header.php';?>
   <!-- Navbar End -->
 
 
