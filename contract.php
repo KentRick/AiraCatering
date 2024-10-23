@@ -3,9 +3,9 @@ session_start(); // Start the session
 
 // Check if the user is logged in
 if (!isset($_SESSION['users'])) {
-    // Redirect to login page if not logged in
-    header("Location: login.php");
-    exit(); // Stop further execution
+  // Redirect to login page if not logged in
+  header("Location: login.php");
+  exit(); // Stop further execution
 }
 
 include 'db_connect.php';
@@ -14,9 +14,15 @@ include 'db_connect.php';
 $sql = "SELECT title, description FROM event_packages";
 $result = $conn->query($sql);
 
+// Fetch event packages from the database
+$sql = "SELECT title, description, pax FROM event_packages";
+$result = $conn->query($sql);
+
 
 // Get the date from URL parameter
 $selectedDate = isset($_GET['date']) ? $_GET['date'] : null;
+
+
 
 $conn->close();
 ?>
@@ -54,7 +60,7 @@ $conn->close();
 <body>
 
   <!-- Navbar start -->
-  <?php include 'header.php';?>
+  <?php include 'header.php'; ?>
   <!-- Navbar End -->
 
   <style>
@@ -133,64 +139,68 @@ $conn->close();
     }
   </style>
 
-  <!-- Event Details -->
-  <h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
-    Con<span class="text-dark">tract</span>
-  </h1>
-  <div class="try" style="justify-content: center; display:flex;">
-    <div class="custom-form-container">
-      <h1>Event Details</h1>
-      <form action="menu.php" method="post" class="custom-form">
+ <!-- Event Details -->
+<h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
+  Con<span class="text-dark">tract</span>
+</h1>
+<div class="try" style="justify-content: center; display:flex;">
+  <div class="custom-form-container">
+    <h1>Event Details</h1>
+    <form action="menu.php" method="get" class="custom-form"> <!-- Changed to GET -->
 
-      <p>Selected Date: <?php echo htmlspecialchars($selectedDate); ?></p>
-        <label for="event-packages" class="custom-label">Event Packages:</label>
-        <select id="event-packages" name="event-packages" class="custom-select" required>
-          <option value="">Select an event type</option>
-          <option value="Custom" data-description="Custom event package" data-guests="N/A">Custom</option>
-          <?php
-          if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-              // Assuming description contains the number of guests and event type
-              preg_match('/\d+/', $row['description'], $matches);
-              $numberOfGuests = isset($matches[0]) ? $matches[0] : 'N/A';
-              echo '<option value="' . htmlspecialchars($row['title']) . '" 
-                    data-description="' . htmlspecialchars($row['description']) . '" 
-                    data-guests="' . $numberOfGuests . '" 
-                    data-event-type="' . htmlspecialchars($row['event_type']) . '">' .
-                htmlspecialchars($row['title']) .
-                '</option>';
-            }
-          } else {
-            echo '<option value="">No packages available</option>';
-          }
-          ?>
-        </select>
-          
-        <label for="number-of-guests" class="custom-label">Number Of Guests:</label>
-        <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required disabled>
+  <p>Selected Date: <?php echo htmlspecialchars($selectedDate); ?></p>
+  <input type="hidden" name="selected-date" value="<?php echo htmlspecialchars($selectedDate); ?>"> <!-- Hidden input for selected date -->
 
-        <!-- Event Type Input -->
-        <div id="event-type-container" class="custom-hidden">
-          <label for="event-type" class="custom-label">Type of Event:</label>
-          <input type="text" id="event-type" name="event-type" class="custom-input" required placeholder="Specify event type">
-        </div>
+  <label for="event-packages" class="custom-label">Event Packages:</label>
+  <select id="event-packages" name="event-packages" class="custom-select" required>
+    <option value="">Select an event type</option>
+    <option value="Custom" data-description="Custom event package" data-guests="N/A">Custom</option>
+    <?php
+    if ($result->num_rows > 0) {
+      while ($row = $result->fetch_assoc()) {
+        echo '<option value="' . htmlspecialchars($row['title']) . '" 
+            data-description="' . htmlspecialchars($row['description']) . '" 
+            data-guests="' . htmlspecialchars($row['pax']) . '" 
+            data-event-type="' . htmlspecialchars($row['event_type']) . '">' .
+          htmlspecialchars($row['title']) .
+          '</option>';
+      }
+    } else {
+      echo '<option value="">No packages available</option>';
+    }
+    ?>
+  </select>
 
-        <div id="other-event-container" class="custom-hidden">
-          <label for="other-event" class="custom-label">Specify Event:</label>
-          <input type="text" id="other-event" name="other-event" class="custom-input">
-        </div>
+      
+<div id="number-of-guests-container">
+  <span id="number-of-guests-label" class="custom-label"></span> <!-- Label to display guests -->
+  <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required style="display:none;"> <!-- Input is hidden by default -->
+</div>
 
-        <label for="motif" class="custom-label">Motif:</label>
-        <input type="text" id="motif" name="motif" class="custom-input" required>
+      <!-- Event Type Input -->
+      <div id="event-type-container" class="custom-hidden">
+        <label for="event-type" class="custom-label">Type of Event:</label>
+        <input type="text" id="event-type" name="event-type" class="custom-input" required placeholder="Specify event type">
+      </div>
 
-        <label for="time" class="custom-label">Time:</label>
-        <input type="time" id="time" name="time" class="custom-input" required>
+      <div id="other-event-container" class="custom-hidden">
+        <label for="other-event" class="custom-label">Specify Event:</label>
+        <input type="text" id="other-event" name="other-event" class="custom-input">
+      </div>
 
-        <button type="submit" class="custom-button">Submit</button>
-      </form>
-    </div>
+      <label for="motif" class="custom-label">Motif:</label>
+      <input type="text" id="motif" name="motif" class="custom-input" required>
+
+      <label for="time" class="custom-label">Time:</label>
+      <input type="time" id="time" name="time" class="custom-input" required>
+
+      <button type="submit" class="custom-button">Submit</button>
+    </form>
   </div>
-  <!-- Event Details End -->
+</div>
+<!-- Event Details End -->
+
+
 
   <!-- Footer Start -->
   <footer class="container-fluid footer-07">
@@ -248,30 +258,58 @@ $conn->close();
   <script src="js/main.js"></script>
 
   <script>
-    // JavaScript to handle package selection and input enabling
-    document.getElementById('event-packages').addEventListener('change', function () {
-      var selectedOption = this.options[this.selectedIndex];
-      var numberOfGuestsInput = document.getElementById('number-of-guests');
-      var eventTypeContainer = document.getElementById('event-type-container');
-      var eventTypeInput = document.getElementById('event-type');
-      var otherEventContainer = document.getElementById('other-event-container');
+// JavaScript to handle package selection and input enabling
+document.getElementById('event-packages').addEventListener('change', function() {
+    var selectedOption = this.options[this.selectedIndex];
+    var numberOfGuestsInput = document.getElementById('number-of-guests');
+    var numberOfGuestsLabel = document.getElementById('number-of-guests-label');
+    var eventTypeContainer = document.getElementById('event-type-container');
+    var eventTypeInput = document.getElementById('event-type');
+    var otherEventContainer = document.getElementById('other-event-container');
 
-      // Populate number of guests based on selected package
-      numberOfGuestsInput.value = selectedOption.getAttribute('data-guests');
+    // Get guests value based on selected option
+    var guests = selectedOption.getAttribute('data-guests');
 
-      // Check if the selected package is "Custom"
-      if (selectedOption.value === "Custom") {
-        numberOfGuestsInput.disabled = false; // Enable the number of guests input
-        eventTypeContainer.classList.remove('custom-hidden'); // Show event type container
-        eventTypeInput.disabled = false; // Enable the event type input
-        otherEventContainer.classList.add('custom-hidden'); // Hide other event input
-        eventTypeInput.value = ''; // Clear the input for custom
+    // Update the label and input based on selected package
+    if (selectedOption.value === "Custom") {
+      numberOfGuestsInput.style.display = 'block'; // Show the input box for custom
+      numberOfGuestsLabel.style.display = 'none'; // Hide the label
+      eventTypeContainer.classList.remove('custom-hidden'); // Show event type container
+      eventTypeInput.disabled = false; // Enable the event type input
+      otherEventContainer.classList.add('custom-hidden'); // Hide other event input
+      eventTypeInput.value = ''; // Clear the input for custom
+    } else {
+      numberOfGuestsInput.style.display = 'none'; // Hide the input box for preset packages
+      numberOfGuestsLabel.style.display = 'block'; // Show the label
+      numberOfGuestsLabel.textContent = `Number of Guests: ${guests}`; // Update label with guests info
+      numberOfGuestsInput.value = guests; // Set input value for reference if needed
+      eventTypeContainer.classList.add('custom-hidden'); // Hide event type container
+      eventTypeInput.disabled = true; // Disable the event type input
+      eventTypeInput.value = ''; // Clear the input when not custom
+      otherEventContainer.classList.add('custom-hidden'); // Hide other event input
+    }
+  });
+
+  // Initialization
+  document.addEventListener('DOMContentLoaded', function() {
+    // Trigger change to initialize the display
+    document.getElementById('event-packages').dispatchEvent(new Event('change'));
+  });
+
+    const eventPackagesSelect = document.getElementById('event-packages');
+    const numberOfGuestsInput = document.getElementById('number-of-guests');
+
+    eventPackagesSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      const pax = selectedOption.getAttribute('data-guests');
+
+      // Set the number of guests input value to the pax value
+      if (pax && pax !== "N/A") {
+        numberOfGuestsInput.value = pax;
+        numberOfGuestsInput.setAttribute('readonly', true); // Set input as read-only
       } else {
-        numberOfGuestsInput.disabled = true; // Disable the number of guests input
-        eventTypeContainer.classList.add('custom-hidden'); // Hide event type container
-        eventTypeInput.disabled = true; // Disable the event type input
-        eventTypeInput.value = ''; // Clear the input when not custom
-        otherEventContainer.classList.add('custom-hidden'); // Hide other event input
+        numberOfGuestsInput.value = ''; // Clear the input if "Custom" is selected
+        numberOfGuestsInput.removeAttribute('readonly'); // Allow editing
       }
     });
   </script>
