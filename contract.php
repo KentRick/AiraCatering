@@ -13,6 +13,11 @@ include 'db_connect.php';
 // Fetch event packages from the database
 $sql = "SELECT title, description FROM event_packages";
 $result = $conn->query($sql);
+
+
+// Get the date from URL parameter
+$selectedDate = isset($_GET['date']) ? $_GET['date'] : null;
+
 $conn->close();
 ?>
 
@@ -136,6 +141,8 @@ $conn->close();
     <div class="custom-form-container">
       <h1>Event Details</h1>
       <form action="menu.php" method="post" class="custom-form">
+
+      <p>Selected Date: <?php echo htmlspecialchars($selectedDate); ?></p>
         <label for="event-packages" class="custom-label">Event Packages:</label>
         <select id="event-packages" name="event-packages" class="custom-select" required>
           <option value="">Select an event type</option>
@@ -158,7 +165,7 @@ $conn->close();
           }
           ?>
         </select>
-
+          
         <label for="number-of-guests" class="custom-label">Number Of Guests:</label>
         <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required disabled>
 

@@ -1,3 +1,36 @@
+<?php
+// db_connect.php - Database connection
+include('db_connect.php');
+
+// Handle AJAX request to fetch availability
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $year = $_POST['year'];
+    $month = $_POST['month'];
+
+    // Fetch availability from the database for the specified month and year
+    $stmt = $conn->prepare("SELECT * FROM availability WHERE YEAR(date) = ? AND MONTH(date) = ?");
+    $stmt->bind_param("ii", $year, $month);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $availability = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $day = (int)date('j', strtotime($row['date'])); // Extract the day part of the date
+        if (!isset($availability[$day])) {
+            $availability[$day] = [];
+        }
+        $availability[$day][] = [
+            'time_slot' => $row['time_slot'],
+            'status' => $row['status'],
+            'time' => date('H:i', strtotime($row['time'])) // Format time (HH:mm)
+        ];
+    }
+
+    echo json_encode($availability); // Return as JSON to be used by JavaScript
+    exit();
+}
+?>
 
 <style>
     .calendar-container { 
@@ -92,9 +125,6 @@
     background-color: #ffeb3b; /* Change this color as desired */
     font-weight: bold; /* Optional: Make it bold */
 }
-
-
-    
 </style>
 
 
@@ -138,35 +168,20 @@
 </div>
 
 <script>
+    let events = {};
 
-
-
-    const events = {
-        '2024-09': {
-            8: [
-                { type: 'available', content: 'Available' },
-                { type: 'available', content: 'Available' },
-                { type: 'reserved', content: 'Unavailable' },
-            ],
-            7: [
-                { type: 'available', content: 'Available' },
-                { type: 'available', content: 'Available' },
-                { type: 'reserved', content: 'Unavailable' },
-            ],
-        },
-        '2024-10': {
-            30: [
-                { type: 'available', content: 'Reservation is open' },
-                { type: 'available', content: 'Reservation is open' },
-                { type: 'reserved', content: 'Bday Ni Ken / Pulong Buhangin' },
-            ],
-        },
-        '2024-12': {
-            25: [
-                { type: 'available', content: 'Reservation is open' },
-                { type: 'available', content: 'Reservation is open' },
-                { type: 'reserved', content: 'Castillo Residence Christmas Party / Pulong Buhangin' }
-            ],
+    // Fetch availability from the database
+    const fetchAvailability = async () => {
+        try {
+            const response = await fetch('fetch_availability.php');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            events = await response.json();
+            console.log('Fetched events:', events); // Log the fetched events for debugging
+            updateCalendar(); // Update the calendar with the fetched events
+        } catch (error) {
+            console.error('Error fetching availability:', error);
         }
     };
 
@@ -176,50 +191,48 @@
     };
 
     const createCalendar = (year, month) => {
-    const calendar = document.getElementById('calendar');
-    calendar.innerHTML = '';
+        const calendar = document.getElementById('calendar');
+        calendar.innerHTML = '';
 
-    const monthDays = new Date(year, month + 1, 0).getDate();
-    const monthDisplay = document.createElement('div');
-    monthDisplay.className = 'notes-month';
-    monthDisplay.innerText = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
-    calendar.appendChild(monthDisplay);
+        const monthDays = new Date(year, month + 1, 0).getDate();
+        const monthDisplay = document.createElement('div');
+        monthDisplay.className = 'notes-month';
+        monthDisplay.innerText = `${new Date(year, month).toLocaleString('default', { month: 'long' })} ${year}`;
+        calendar.appendChild(monthDisplay);
 
-    for (let i = 1; i <= monthDays; i++) {
-        const day = document.createElement('div');
-        day.className = 'day';
-        day.innerText = i;
+        for (let i = 1; i <= monthDays; i++) {
+            const day = document.createElement('div');
+            day.className = 'day';
+            day.innerText = i;
 
-        const dayEvents = getListData(year, month + 1, i);
-        
-        dayEvents.forEach(event => {
-            const eventDiv = document.createElement('div');
-            eventDiv.className = `cal-event ${event.type}`;
-            eventDiv.innerText = event.content;
-            day.appendChild(eventDiv);
-            
-            // Only add click event for available events
-            if (event.type === 'available') {
-                eventDiv.addEventListener('click', () => {
-                    document.getElementById('eventContent').innerText = `Date is ${event.content} click reserve now to continue the reservation`;
-                    const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-                    eventModal.show();
-                });
-            }
+            const dayEvents = getListData(year, month + 1, i);
 
-        });
-
-        // Click listener to show all events when the day is clicked
-        day.addEventListener('click', () => {
-            const eventDivs = day.querySelectorAll('.cal-event');
-            eventDivs.forEach(eventDiv => {
-                eventDiv.style.display = 'block'; // Show all events
+            dayEvents.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `cal-event ${event.type}`;
+                eventDiv.innerText = event.content;
+                day.appendChild(eventDiv);
+                
+                // Only add click event for available events
+                if (event.type === 'available') {
+                    eventDiv.addEventListener('click', () => {
+                        const selectedDate = new Date(year, month, i).toISOString().split('T')[0]; // Format: YYYY-MM-DD
+                        window.location.href = `contract.php?date=${selectedDate}`; // Redirect to contract.php with the selected date
+                    });
+                }
             });
-        });
 
-        calendar.appendChild(day);
-    }
-};
+            // Click listener to show all events when the day is clicked
+            day.addEventListener('click', () => {
+                const eventDivs = day.querySelectorAll('.cal-event');
+                eventDivs.forEach(eventDiv => {
+                    eventDiv.style.display = 'block'; // Show all events
+                });
+            });
+
+            calendar.appendChild(day);
+        }
+    };
 
     const updateCalendar = () => {
         const monthPicker = document.getElementById('month-picker');
@@ -236,16 +249,13 @@
         const month = today.getMonth();
         monthPicker.value = `${year}-${String(month + 1).padStart(2, '0')}`;
         monthPicker.min = `${year}-${String(month + 1).padStart(2, '0')}`;
-        updateCalendar();
+        
+        fetchAvailability(); // Fetch availability on load
     });
 
- // Add functionality for "Reserve Now" button
-document.getElementById('reserveNowButton').addEventListener('click', () => {
-    window.location.href = "contract.php"; // Redirect to contract.php
-});
-
-
-
-
-
+    // Add functionality for "Reserve Now" button
+    document.getElementById('reserveNowButton').addEventListener('click', () => {
+        window.location.href = "contract.php"; // Redirect to contract.php
+    });
 </script>
+
