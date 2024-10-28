@@ -32,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = $_POST['title'];
     $pax = $_POST['pax'];
     $description = $_POST['description'];
+    
 
     // File upload handling
     $image = $_FILES['image']['name'];
@@ -52,15 +53,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($_FILES['image']['name']) {
       $image = $_FILES['image']['name'];
       $target = "uploads/" . basename($image);
-
+  
       if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-        $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', description='$description', image='$image' WHERE id='$package_id'";
-        $conn->query($sql);
+          $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', pax='$pax', description='$description', image='$image' WHERE id='$package_id'";
+          $conn->query($sql);
       }
-    } else {
-      $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', description='$description' WHERE id='$package_id'";
+  } else {
+      $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', pax='$pax', description='$description' WHERE id='$package_id'";
       $conn->query($sql);
-    }
+  }
+  
   } elseif (isset($_POST['delete_package'])) {
     $package_id = $_POST['package_id'];
     $sql = "DELETE FROM event_packages WHERE id='$package_id'";
@@ -321,48 +323,52 @@ $packages = $conn->query($sql_packages);
     </div>
   </div>
 </div>
-  <!-- Edit Package Modal -->
-  <div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="editPackageModalLabel">Edit Package</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form method="post" enctype="multipart/form-data">
-            <input type="hidden" name="package_id" id="modal_package_id">
-            <div class="form-group mb-3">
-              <label for="modal_category_id">Select Category</label>
-              <select name="category_id" id="modal_category_id" class="form-select" required>
-                <?php
-                $categories = $conn->query($sql_categories);
-                while ($category = $categories->fetch_assoc()): ?>
-                  <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
-                <?php endwhile; ?>
-              </select>
-            </div>
-            <div class="form-group mb-3">
-              <label for="modal_title">Package Title</label>
-              <input type="text" name="title" id="modal_title" class="form-control" placeholder="Enter Package Title" required>
-            </div>
-            <div class="form-group mb-3">
-              <label for="modal_description">Package Description</label>
-              <textarea name="description" id="modal_description" class="form-control" placeholder="Enter Package Description" required></textarea>
-            </div>
-            <div class="form-group mb-3">
-              <label for="modal_image">Package Image (optional)</label>
-              <input type="file" name="image" id="modal_image" class="form-control">
-            </div>
-            <div class="modal-footer">
-              <button type="submit" name="edit_package" class="btn btn-warning">Save Changes</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </form>
-        </div>
+<!-- Edit Package Modal -->
+<div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editPackageModalLabel">Edit Package</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form method="post" enctype="multipart/form-data">
+          <input type="hidden" name="package_id" id="modal_package_id">
+          <div class="form-group mb-3">
+            <label for="modal_category_id">Select Category</label>
+            <select name="category_id" id="modal_category_id" class="form-select" required>
+              <?php
+              $categories = $conn->query($sql_categories);
+              while ($category = $categories->fetch_assoc()): ?>
+                <option value="<?php echo $category['id']; ?>"><?php echo $category['category_name']; ?></option>
+              <?php endwhile; ?>
+            </select>
+          </div>
+          <div class="form-group mb-3">
+            <label for="modal_title">Package Title</label>
+            <input type="text" name="title" id="modal_title" class="form-control" placeholder="Enter Package Title" required>
+          </div>
+          <div class="form-group mb-3">
+            <label for="modal_pax">PAX</label>
+            <input type="text" name="pax" id="modal_pax" class="form-control" placeholder="Enter PAX" required>
+          </div>
+          <div class="form-group mb-3">
+            <label for="modal_description">Description</label>
+            <textarea name="description" id="modal_description" class="form-control" placeholder="Enter Package Description" required></textarea>
+          </div>
+          <div class="form-group mb-3">
+            <label for="modal_image">Image</label>
+            <input type="file" name="image" id="modal_image" class="form-control">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" name="edit_package" class="btn btn-warning">Save Changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Delete Confirmation Modal for Packages -->
 <div class="modal fade" id="deletePackageConfirmationModal" tabindex="-1" aria-labelledby="deletePackageConfirmationModalLabel" aria-hidden="true">
@@ -396,6 +402,7 @@ $packages = $conn->query($sql_packages);
       document.getElementById('package_id').value = id;
       document.getElementById('title').value = title;
       document.getElementById('description').value = description;
+      document.getElementById('modal_pax').value = pax; // Add this line
       document.getElementById('category_id').value = category_id;
     }
 
@@ -408,17 +415,17 @@ $packages = $conn->query($sql_packages);
       editCategoryModal.show();
     }
 
-    function openEditPackageModal(id, title, description, categoryId) {
-      // Populate modal fields with package details
-      document.getElementById('modal_package_id').value = id;
-      document.getElementById('modal_title').value = title;
-      document.getElementById('modal_description').value = description;
-      document.getElementById('modal_category_id').value = categoryId;
+    // JavaScript function to open Edit Package modal with pre-filled data
+function openEditPackageModal(package_id, title, description, pax, category_id) {
+  document.getElementById('modal_package_id').value = package_id;
+  document.getElementById('modal_title').value = title;
+  document.getElementById('modal_description').value = description;
+  document.getElementById('modal_pax').value = pax;  // Pre-fill pax field
+  document.getElementById('modal_category_id').value = category_id;
 
-      // Show the modal
-      var editPackageModal = new bootstrap.Modal(document.getElementById('editPackageModal'));
-      editPackageModal.show();
-    }
+  var editPackageModal = new bootstrap.Modal(document.getElementById('editPackageModal'));
+  editPackageModal.show();
+}
 
     function openDeleteConfirmationModal(categoryId) {
     document.getElementById('modal_delete_category_id').value = categoryId;

@@ -405,8 +405,12 @@ https://cdn.jsdelivr.net/npm/antd@5.20.6/dist/reset.min.css
   </div>
   <!-- Copyright End -->
 
+  <!-- Floating Messenger Button -->
+  <?php include 'messenger.php'; ?>
+
   <!-- Back to Top -->
-  <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
+  <!-- <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a> -->
+
 
   <!-- JavaScript Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

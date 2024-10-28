@@ -139,43 +139,45 @@ $conn->close();
     }
   </style>
 
- <!-- Event Details -->
+<!-- Event Details -->
 <h1 class="text-primary fw-bold mb-0 text-center custom-h1" style="font-size: calc(1.375rem + 1.5vw);">
   Con<span class="text-dark">tract</span>
 </h1>
 <div class="try" style="justify-content: center; display:flex;">
   <div class="custom-form-container">
-    <h1>Event Details</h1>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h1>Event Details</h1>
+      <button type="button" class="btn btn-primary" onclick="viewEventDetails()">View</button>
+    </div>
     <form action="menu.php" method="get" class="custom-form"> <!-- Changed to GET -->
 
-  <p>Selected Date: <?php echo htmlspecialchars($selectedDate); ?></p>
-  <input type="hidden" name="selected-date" value="<?php echo htmlspecialchars($selectedDate); ?>"> <!-- Hidden input for selected date -->
+      <p>Selected Date: <?php echo htmlspecialchars($selectedDate); ?></p>
+      <input type="hidden" name="selected-date" value="<?php echo htmlspecialchars($selectedDate); ?>"> <!-- Hidden input for selected date -->
 
-  <label for="event-packages" class="custom-label">Event Packages:</label>
-  <select id="event-packages" name="event-packages" class="custom-select" required>
-    <option value="">Select an event type</option>
-    <option value="Custom" data-description="Custom event package" data-guests="N/A">Custom</option>
-    <?php
-    if ($result->num_rows > 0) {
-      while ($row = $result->fetch_assoc()) {
-        echo '<option value="' . htmlspecialchars($row['title']) . '" 
-            data-description="' . htmlspecialchars($row['description']) . '" 
-            data-guests="' . htmlspecialchars($row['pax']) . '" 
-            data-event-type="' . htmlspecialchars($row['event_type']) . '">' .
-          htmlspecialchars($row['title']) .
-          '</option>';
-      }
-    } else {
-      echo '<option value="">No packages available</option>';
-    }
-    ?>
-  </select>
+      <label for="event-packages" class="custom-label">Event Packages:</label>
+      <select id="event-packages" name="event-packages" class="custom-select" required>
+        <option value="">Select an event type</option>
+        <option value="Custom" data-description="Custom event package" data-guests="N/A">Custom</option>
+        <?php
+        if ($result->num_rows > 0) {
+          while ($row = $result->fetch_assoc()) {
+            echo '<option value="' . htmlspecialchars($row['title']) . '" 
+                data-description="' . htmlspecialchars($row['description']) . '" 
+                data-guests="' . htmlspecialchars($row['pax']) . '" 
+                data-event-type="' . htmlspecialchars($row['event_type']) . '">' .
+              htmlspecialchars($row['title']) .
+              '</option>';
+          }
+        } else {
+          echo '<option value="">No packages available</option>';
+        }
+        ?>
+      </select>
 
-      
-<div id="number-of-guests-container">
-  <span id="number-of-guests-label" class="custom-label"></span> <!-- Label to display guests -->
-  <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required style="display:none;"> <!-- Input is hidden by default -->
-</div>
+      <div id="number-of-guests-container">
+        <span id="number-of-guests-label" class="custom-label"></span> <!-- Label to display guests -->
+        <input type="number" id="number-of-guests" name="number-of-guests" class="custom-input" min="1" required style="display:none;"> <!-- Input is hidden by default -->
+      </div>
 
       <!-- Event Type Input -->
       <div id="event-type-container" class="custom-hidden">
