@@ -30,22 +30,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if (isset($_POST['add_package'])) {
     $category_id = $_POST['category_id'];
     $title = $_POST['title'];
+    $price = $_POST['price'];
     $pax = $_POST['pax'];
     $description = $_POST['description'];
-    
 
     // File upload handling
     $image = $_FILES['image']['name'];
     $target = "uploads/" . basename($image);
 
     if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-      $sql = "INSERT INTO event_packages (category_id, title, pax, description, image) VALUES ('$category_id', '$title', '$pax', '$description', '$image')";
+      $sql = "INSERT INTO event_packages (category_id, title, price, pax, description, image) VALUES ('$category_id', '$title', '$price', '$pax', '$description', '$image')";
       $conn->query($sql);
     }
   } elseif (isset($_POST['edit_package'])) {
     $package_id = $_POST['package_id'];
     $category_id = $_POST['category_id'];
     $title = $_POST['title'];
+    $price = $_POST['price'];
     $pax = $_POST['pax'];
     $description = $_POST['description'];
 
@@ -55,17 +56,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $target = "uploads/" . basename($image);
   
       if (move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-          $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', pax='$pax', description='$description', image='$image' WHERE id='$package_id'";
-          $conn->query($sql);
+        $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', price='$price', pax='$pax', description='$description', image='$image' WHERE id='$package_id'";
+        $conn->query($sql);
       }
-  } else {
-      $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', pax='$pax', description='$description' WHERE id='$package_id'";
+    } else {
+      $sql = "UPDATE event_packages SET category_id='$category_id', title='$title', price='$price', pax='$pax', description='$description' WHERE id='$package_id'";
       $conn->query($sql);
-  }
-  
+    }
+    
   } elseif (isset($_POST['delete_package'])) {
     $package_id = $_POST['package_id'];
     $sql = "DELETE FROM event_packages WHERE id='$package_id'";
+    $conn->query($sql);
+  }
+}
+
+// Handle addon add, update, delete
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  if (isset($_POST['add_addon'])) {
+    $addon_name = $_POST['addon_name'];
+    $addon_price = $_POST['addon_price'];
+    $sql = "INSERT INTO packages_addons (addon_name, addon_price) VALUES ('$addon_name', '$addon_price')";
+    $conn->query($sql);
+  } elseif (isset($_POST['edit_addon'])) {
+    $addon_id = $_POST['addon_id'];
+    $addon_name = $_POST['addon_name'];
+    $addon_price = $_POST['addon_price'];
+    $sql = "UPDATE packages_addons SET addon_name='$addon_name', addon_price='$addon_price' WHERE id='$addon_id'";
+    $conn->query($sql);
+  } elseif (isset($_POST['delete_addon'])) {
+    $addon_id = $_POST['addon_id'];
+    $sql = "DELETE FROM packages_addons WHERE id='$addon_id'";
     $conn->query($sql);
   }
 }
@@ -76,7 +97,12 @@ $categories = $conn->query($sql_categories);
 
 $sql_packages = "SELECT p.*, c.category_name FROM event_packages p JOIN event_categories c ON p.category_id = c.id";
 $packages = $conn->query($sql_packages);
+
+// Fetch all addons
+$sql_addons = "SELECT * FROM packages_addons";
+$addons = $conn->query($sql_addons);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -258,7 +284,108 @@ $packages = $conn->query($sql_packages);
   </div>
 </div>
 
-        <!-- Column 2: Packages -->
+
+        <!-- New Card for Addons -->
+        <div class="col-md-12 mt-4">
+          <div class="card column-segment">
+            <div class="card-header">
+              <h4>Addons</h4>
+            </div>
+            <div class="card-body">
+              <form method="post">
+                <div class="form-group">
+                  <input type="text" name="addon_name" id="addon_name" class="form-control" placeholder="Enter Addon Name" required>
+                </div>
+                <div class="form-group">
+                  <input type="number" name="addon_price" id="addon_price" class="form-control" placeholder="Enter Addon Price" required>
+                </div>
+                <div class="form-group">
+                  <button type="submit" name="add_addon" class="btn btn-primary">Add Addon</button>
+                </div>
+              </form>
+
+              <h5>Existing Addons:</h5>
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Addon Name</th>
+                    <th>Addon Price</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php while ($addon = $addons->fetch_assoc()): ?>
+                    <tr>
+                      <td><?php echo $addon['addon_name']; ?></td>
+                      <td><?php echo $addon['addon_price']; ?></td>
+                      <td>
+                        <form method="post" style="display:inline-block">
+                          <input type="hidden" name="addon_id" value="<?php echo $addon['id']; ?>">
+                          <button type="button" class="btn btn-danger" onclick="openDeleteConfirmationModal('<?php echo $addon['id']; ?>')">Delete</button>
+                        </form>
+                        <button type="button" class="btn btn-warning" onclick="openEditAddonModal('<?php echo $addon['id']; ?>', '<?php echo $addon['addon_name']; ?>', '<?php echo $addon['addon_price']; ?>')">Edit</button>
+                      </td>
+                    </tr>
+                  <?php endwhile; ?>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Addon Modal -->
+        <div class="modal fade" id="editAddonModal" tabindex="-1" aria-labelledby="editAddonModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editAddonModalLabel">Edit Addon</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <form method="post">
+                  <input type="hidden" name="addon_id" id="modal_addon_id">
+                  <div class="form-group mb-3">
+                    <label for="modal_addon_name">Addon Name</label>
+                    <input type="text" name="addon_name" id="modal_addon_name" class="form-control" placeholder="Enter Addon Name" required>
+                  </div>
+                  <div class="form-group mb-3">
+                    <label for="modal_addon_price">Addon Price</label>
+                    <input type="number" name="addon_price" id="modal_addon_price" class="form-control" placeholder="Enter Addon Price" required>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" name="edit_addon" class="btn btn-warning">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Confirmation Modal for Addons -->
+        <div class="modal fade" id="deleteAddonConfirmationModal" tabindex="-1" aria-labelledby="deleteAddonConfirmationModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteAddonConfirmationModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                Are you sure you want to delete this addon? This action cannot be undone.
+              </div>
+              <div class="modal-footer">
+                <form method="post" id="deleteAddonForm">
+                  <input type="hidden" name="addon_id" id="modal_delete_addon_id">
+                  <button type="submit" name="delete_addon" class="btn btn-danger">Delete</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+       <!-- Column 2: Packages -->
 <div class="col-md-6">
   <div class="card column-segment">
     <div class="card-header">
@@ -267,6 +394,7 @@ $packages = $conn->query($sql_packages);
     <div class="card-body">
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="package_id" id="package_id">
+        
         <div class="form-group">
           <label for="category_id">Select Category</label>
           <select name="category_id" id="category_id" class="form-select" required>
@@ -277,19 +405,25 @@ $packages = $conn->query($sql_packages);
             <?php endwhile; ?>
           </select>
         </div>
+
         <div class="form-group">
           <input type="text" name="title" id="title" class="form-control" placeholder="Enter Package Title" required>
         </div>
         <div class="form-group">
-          <input type="text" name="pax" id="pax" class="form-control" placeholder="Enter Package PAX" required>
+          <input type="number" name="price" id="price" class="form-control" placeholder="Enter Package Price" required>
+        </div>
+        <div class="form-group">
+          <input type="number" name="pax" id="pax" class="form-control" placeholder="Enter Package PAX" required>
         </div>
         <div class="form-group">
           <textarea name="description" id="description" class="form-control" placeholder="Enter Package Description" required></textarea>
         </div>
-        
         <div class="form-group">
           <input type="file" name="image" class="form-control">
         </div>
+
+        
+
         <div class="form-group">
           <button type="submit" name="add_package" class="btn btn-primary">Add Package</button>
         </div>
@@ -314,7 +448,7 @@ $packages = $conn->query($sql_packages);
                   <input type="hidden" name="package_id" value="<?php echo $package['id']; ?>">
                   <button type="button" class="btn btn-danger" onclick="openDeletePackageConfirmationModal('<?php echo $package['id']; ?>')">Delete</button>
                 </form>
-                <button type="button" class="btn btn-warning" onclick="openEditPackageModal('<?php echo $package['id']; ?>', '<?php echo $package['title']; ?>', '<?php echo $package['description']; ?>', '<?php echo $package['category_id']; ?>')">Edit</button>
+                <button type="button" class="btn btn-warning" onclick="openEditPackageModal('<?php echo $package['id']; ?>', '<?php echo $package['title']; ?>', '<?php echo $package['description']; ?>', '<?php echo $package['pax']; ?>', '<?php echo $package['category_id']; ?>')">Edit</button>
               </td>
             </tr>
           <?php endwhile; ?>
@@ -323,6 +457,7 @@ $packages = $conn->query($sql_packages);
     </div>
   </div>
 </div>
+
 <!-- Edit Package Modal -->
 <div class="modal fade" id="editPackageModal" tabindex="-1" aria-labelledby="editPackageModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -349,8 +484,12 @@ $packages = $conn->query($sql_packages);
             <input type="text" name="title" id="modal_title" class="form-control" placeholder="Enter Package Title" required>
           </div>
           <div class="form-group mb-3">
+            <label for="modal_price">Package Price</label>
+            <input type="number" name="price" id="modal_price" class="form-control" placeholder="Enter Package Price" required>
+          </div>
+          <div class="form-group mb-3">
             <label for="modal_pax">PAX</label>
-            <input type="text" name="pax" id="modal_pax" class="form-control" placeholder="Enter PAX" required>
+            <input type="number" name="pax" id="modal_pax" class="form-control" placeholder="Enter PAX" required>
           </div>
           <div class="form-group mb-3">
             <label for="modal_description">Description</label>
@@ -370,7 +509,7 @@ $packages = $conn->query($sql_packages);
   </div>
 </div>
 
-  <!-- Delete Confirmation Modal for Packages -->
+<!-- Delete Confirmation Modal for Packages -->
 <div class="modal fade" id="deletePackageConfirmationModal" tabindex="-1" aria-labelledby="deletePackageConfirmationModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -392,56 +531,60 @@ $packages = $conn->query($sql_packages);
   </div>
 </div>
 
-  <script>
-    function populateEditCategory(id, name) {
-      document.getElementById('category_id').value = id;
-      document.getElementById('category_name').value = name;
-    }
 
-    function populateEditPackage(id, title, description, category_id) {
-      document.getElementById('package_id').value = id;
-      document.getElementById('title').value = title;
-      document.getElementById('description').value = description;
-      document.getElementById('modal_pax').value = pax; // Add this line
-      document.getElementById('category_id').value = category_id;
-    }
 
-    //modal
-    function openEditCategoryModal(id, name) {
-      document.getElementById('modal_category_id').value = id;
-      document.getElementById('modal_category_name').value = name;
-      // Show the modal
-      var editCategoryModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
-      editCategoryModal.show();
-    }
 
-    // JavaScript function to open Edit Package modal with pre-filled data
-function openEditPackageModal(package_id, title, description, pax, category_id) {
-  document.getElementById('modal_package_id').value = package_id;
-  document.getElementById('modal_title').value = title;
-  document.getElementById('modal_description').value = description;
-  document.getElementById('modal_pax').value = pax;  // Pre-fill pax field
-  document.getElementById('modal_category_id').value = category_id;
 
-  var editPackageModal = new bootstrap.Modal(document.getElementById('editPackageModal'));
-  editPackageModal.show();
-}
-
-    function openDeleteConfirmationModal(categoryId) {
-    document.getElementById('modal_delete_category_id').value = categoryId;
-    // Show the modal
-    var deleteConfirmationModal = new bootstrap.Modal(document.getElementById('deleteConfirmationModal'));
-    deleteConfirmationModal.show();
+<script>
+  function populateEditCategory(id, name) {
+    document.getElementById('category_id').value = id;
+    document.getElementById('category_name').value = name;
   }
 
-  function openDeletePackageConfirmationModal(packageId) {
-    document.getElementById('modal_delete_package_id').value = packageId;
-    // Show the modal
-    var deletePackageConfirmationModal = new bootstrap.Modal(document.getElementById('deletePackageConfirmationModal'));
-    deletePackageConfirmationModal.show();
+  function populateEditPackage(id, title, description, pax, category_id) {
+    document.getElementById('package_id').value = id;
+    document.getElementById('modal_title').value = title;
+    document.getElementById('modal_price').value = price;
+    document.getElementById('modal_description').value = description;
+    document.getElementById('modal_pax').value = pax; // Add this line
+    document.getElementById('modal_category_id').value = category_id;
   }
 
-  </script>
+  // JavaScript function to open Edit Package modal with pre-filled data
+  function openEditPackageModal(package_id, title, description, pax, category_id) {
+    document.getElementById('modal_package_id').value = package_id;
+    document.getElementById('modal_title').value = title;
+    document.getElementById('modal_price').value = price;
+    document.getElementById('modal_description').value = description;
+    document.getElementById('modal_pax').value = pax; // Add this line
+    document.getElementById('modal_category_id').value = category_id;
+    var editPackageModal = new bootstrap.Modal(document.getElementById('editPackageModal'));
+    editPackageModal.show();
+  }
+
+  // JavaScript function to open Delete Confirmation modal
+  function openDeletePackageConfirmationModal(package_id) {
+    document.getElementById('modal_delete_package_id').value = package_id;
+    var deletePackageModal = new bootstrap.Modal(document.getElementById('deletePackageConfirmationModal'));
+    deletePackageModal.show();
+  }
+
+  // JavaScript function to add a new addon input
+  function addAddon() {
+    const container = document.getElementById('addons-container');
+    const addonItem = document.createElement('div');
+    addonItem.classList.add('addon-item', 'mb-2', 'row');
+    addonItem.innerHTML = `
+      <div class="col-md-6">
+        <input type="text" name="addon_name[]" class="form-control" placeholder="Enter Addon Name" required>
+      </div>
+      <div class="col-md-6">
+        <input type="number" name="addon_price[]" class="form-control" placeholder="Enter Addon Price" step="0.01" required>
+      </div>
+    `;
+    container.appendChild(addonItem);
+  }
+</script>
 
   <!-- JavaScript Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

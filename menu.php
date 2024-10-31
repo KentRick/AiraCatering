@@ -310,10 +310,11 @@ $conn->close();
   </div>
   <!-- Copyright End -->
 
-  <!-- Back to Top -->
-  <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top">
-    <i class="fa fa-arrow-up"></i>
-  </a>
+<!-- Floating Messenger Button -->
+<?php include 'messenger.php'; ?>
+
+<!-- Back to Top -->
+<!-- <a href="#" class="btn btn-md-square btn-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a> -->
 
   <!-- JavaScript Libraries -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>

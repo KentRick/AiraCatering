@@ -1,34 +1,28 @@
 <?php
-// Include your database connection
-include 'db_connect.php';
+// fetch_availability.php - Fetch availability based on selected month and year
+include('db_connect.php');
 
-header('Content-Type: application/json');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents("php://input"), true);
+    $year = $data['year'];
+    $month = $data['month'];
 
-$query = "SELECT date, time_slot, status FROM availability";
-$result = mysqli_query($conn, $query);
-
-$events = [];
-
-while ($row = mysqli_fetch_assoc($result)) {
-    $date = $row['date'];
-    $time_slot = $row['time_slot'];
-    $status = $row['status'];
-
-    $monthYearKey = date('Y-m', strtotime($date));
-    $dayKey = date('j', strtotime($date));
-
-    if (!isset($events[$monthYearKey])) {
-        $events[$monthYearKey] = [];
+    $stmt = $conn->prepare("SELECT DAY(date) as day, slots FROM availability WHERE YEAR(date) = ? AND MONTH(date) = ?");
+    $stmt->bind_param("ii", $year, $month);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $availability = [];
+    
+    while ($row = $result->fetch_assoc()) {
+        $day = (int)$row['day'];
+        $availability[$day] = [
+            'status' => ($row['slots'] > 0) ? 'available' : 'booked',
+            'slots' => $row['slots'],
+        ];
     }
 
-    if (!isset($events[$monthYearKey][$dayKey])) {
-        $events[$monthYearKey][$dayKey] = [];
-    }
-
-    $events[$monthYearKey][$dayKey][] = [
-        'type' => $status === 'available' ? 'available' : 'reserved',
-        'content' => $status === 'available' ? 'Reservation is open' : 'Reserved',
-    ];
+    echo json_encode($availability);
+    exit();
 }
-
-echo json_encode($events);
+?>

@@ -17,13 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     while ($row = $result->fetch_assoc()) {
         $day = (int)date('j', strtotime($row['date'])); // Extract the day part of the date
-        if (!isset($availability[$day])) {
-            $availability[$day] = [];
-        }
-        $availability[$day][] = [
-            'time_slot' => $row['time_slot'],
-            'status' => $row['status'],
-            'time' => date('H:i', strtotime($row['time'])) // Format time (HH:mm)
+        // Check the slots to determine availability
+        $availability[$day] = [
+            'status' => ($row['slots'] > 0) ? 'available' : 'booked', // 'available' or 'booked'
+            'slots' => $row['slots'], // Store the number of available slots
         ];
     }
 
@@ -49,28 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         border: 1px solid #ddd;
         text-align: center;
         transition: background-color 0.3s;
-        position: relative; /* For absolute positioning of events */
+        position: relative;
+        cursor: pointer;
     }
-    .day:hover {
-        background-color: #e6f7ff;
-    }
-    .cal-event {
-        margin-top: 5px;
-        padding: 5px;
-        border-radius: 4px;
-        color: white;
-        font-size: 12px;
-        display: none; /* Initially hide events */
-        position: relative; /* Position events relative to the day */
-        width: 100%; /* Adjust width to fit inside day */
-        box-sizing: border-box; /* Ensure padding is included in width */
-        cursor: pointer; /* Show pointer cursor on hover */
-    }
-    .reserved { 
-        background-color: #f44336;
-    }
-    .available { 
-        background-color: #4caf50;
+    .day.unavailable {
+        background-color: #f8d7da;
+        color: #721c24;
+        cursor: not-allowed;
     }
     .notes-month {
         font-size: 20px;
@@ -79,54 +61,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         text-align: center;
     }
 
+    /* Responsive styles */
     @media (min-width: 769px) and (max-width: 1000px) {
         #calendar {
             grid-template-columns: repeat(4, 1fr);
         }
-
         .day {
             padding: 15px;
             font-size: 16px;
         }
-
-        .modal-content {
-            margin: 0 20px;
-        }
     }
-
     @media (max-width: 768px) {
         .calendar-container {
             flex-direction: column;
-            align-items: stretch;
         }
-
         #calendar {
             grid-template-columns: repeat(3, 1fr);
         }
-
         .day {
             padding: 10px;
             font-size: 14px;
         }
     }
-
     @media (max-width: 576px) {
         #calendar {
             grid-template-columns: repeat(2, 1fr);
         }
-
         .day {
             padding: 5px;
             font-size: 12px;
         }
     }
-
-    .current-day {
-    background-color: #ffeb3b; /* Change this color as desired */
-    font-weight: bold; /* Optional: Make it bold */
-}
 </style>
-
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -137,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <input type="month" id="month-picker" class="form-control" value="2024-09">
+                    <input type="month" id="month-picker" class="form-control" value="2024-10">
                 </div>
                 <div id="calendar"></div>
             </div>
@@ -148,46 +114,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<!-- Alert Modal for Event Actions -->
-<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventModalLabel">Event Actions</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p id="eventContent"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="reserveNowButton">Reserve Now</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script>
     let events = {};
 
-    // Fetch availability from the database
-    const fetchAvailability = async () => {
+    const fetchAvailability = async (year, month) => {
         try {
-            const response = await fetch('fetch_availability.php');
+            const response = await fetch('fetch_availability.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    year: year,
+                    month: month,
+                }),
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             events = await response.json();
-            console.log('Fetched events:', events); // Log the fetched events for debugging
-            updateCalendar(); // Update the calendar with the fetched events
+            updateCalendar(year, month);
         } catch (error) {
             console.error('Error fetching availability:', error);
         }
-    };
-
-    const getListData = (year, month, date) => {
-        const monthKey = `${year}-${String(month).padStart(2, '0')}`;
-        return (events[monthKey] && events[monthKey][date]) || [];
     };
 
     const createCalendar = (year, month) => {
@@ -205,57 +154,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             day.className = 'day';
             day.innerText = i;
 
-            const dayEvents = getListData(year, month + 1, i);
-
-            dayEvents.forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = `cal-event ${event.type}`;
-                eventDiv.innerText = event.content;
-                day.appendChild(eventDiv);
-                
-                // Only add click event for available events
-                if (event.type === 'available') {
-                    eventDiv.addEventListener('click', () => {
-                        const selectedDate = new Date(year, month, i).toISOString().split('T')[0]; // Format: YYYY-MM-DD
-                        window.location.href = `contract.php?date=${selectedDate}`; // Redirect to contract.php with the selected date
+            // Check if the day exists in events and is available
+            if (events[i]) {
+                if (events[i].status === 'booked') {
+                    day.classList.add('unavailable');
+                    day.title = "Unavailable";
+                } else {
+                    // Only make the day clickable if it is available
+                    day.classList.remove('unavailable'); // Remove unavailable class
+                    day.addEventListener('click', () => {
+                        const selectedDate = new Date(year, month, i).toISOString().split('T')[0];
+                        window.location.href = `contract.php?date=${selectedDate}`;
                     });
                 }
-            });
-
-            // Click listener to show all events when the day is clicked
-            day.addEventListener('click', () => {
-                const eventDivs = day.querySelectorAll('.cal-event');
-                eventDivs.forEach(eventDiv => {
-                    eventDiv.style.display = 'block'; // Show all events
-                });
-            });
+            } else {
+                // Mark days without data as unavailable
+                day.classList.add('unavailable');
+                day.title = "Unavailable";
+            }
 
             calendar.appendChild(day);
         }
     };
 
-    const updateCalendar = () => {
-        const monthPicker = document.getElementById('month-picker');
-        const [year, month] = monthPicker.value.split('-').map(Number);
-        createCalendar(year, month - 1);
+    const updateCalendar = (year, month) => {
+        createCalendar(year, month);
     };
 
-    document.getElementById('month-picker').addEventListener('input', updateCalendar);
+    document.getElementById('month-picker').addEventListener('change', (event) => {
+        const [year, month] = event.target.value.split('-').map(Number);
+        fetchAvailability(year, month - 1);
+    });
 
     document.addEventListener('DOMContentLoaded', () => {
         const monthPicker = document.getElementById('month-picker');
         const today = new Date();
-        const year = today.getFullYear();
-        const month = today.getMonth();
-        monthPicker.value = `${year}-${String(month + 1).padStart(2, '0')}`;
-        monthPicker.min = `${year}-${String(month + 1).padStart(2, '0')}`;
-        
-        fetchAvailability(); // Fetch availability on load
-    });
-
-    // Add functionality for "Reserve Now" button
-    document.getElementById('reserveNowButton').addEventListener('click', () => {
-        window.location.href = "contract.php"; // Redirect to contract.php
+        monthPicker.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+        fetchAvailability(today.getFullYear(), today.getMonth());
     });
 </script>
-

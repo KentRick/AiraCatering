@@ -19,6 +19,6 @@
   </style>
 
 
-    <a href="https://m.me/263001120477074" class="floating-messenger" target="_blank">
+    <a href="https://m.me/" class="floating-messenger" target="_blank">
     <i class="fab fa-facebook-messenger"></i>
   </a>
